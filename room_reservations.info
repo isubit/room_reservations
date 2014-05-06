@@ -1,0 +1,12 @@
+name = Room Reservations
+description = Room reservation booking system.
+core = 7.x
+package = Other
+dependencies[] = token
+dependencies[] = entityreference
+dependencies[] = field
+dependencies[] = views
+dependencies[] = qtip
+dependencies[] = date    
+dependencies[] = date_popup
+files[] = room_reservations.inc
