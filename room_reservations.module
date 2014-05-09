@@ -47,7 +47,7 @@ function room_reservations_menu() {
     'access arguments' => array('administer room reservations system'),
     'weight' => 10,
   );
-  $items['admin/config/system/room_reservations/settings/email'] = array(
+  /*$items['admin/config/system/room_reservations/settings/email'] = array(
     'title' => 'Default Email Address',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('room_reservations_admin_settings_default_email'),
@@ -73,7 +73,7 @@ function room_reservations_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'room_reservations.admin.inc',
     'weight' => 40,
-  );
+  );*/
   $items['admin/config/system/room_reservations/hours'] = array(
     'title' => 'Hours',
     'page callback' => 'drupal_get_form',
@@ -107,7 +107,7 @@ function room_reservations_menu() {
     'file' => 'room_reservations.admin.inc',
     'weight' => 30,
   );
-  $items['admin/config/system/room_reservations/sms'] = array(
+  /*$items['admin/config/system/room_reservations/sms'] = array(
     'title' => 'SMS',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('room_reservations_admin_settings_sms'),
@@ -164,6 +164,7 @@ function room_reservations_menu() {
     'file' => 'room_reservations.admin.inc',
     'weight' => 20,
   );
+  */
 
   /*
   $items['room_reservations/add'] = array(
