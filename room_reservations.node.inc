@@ -19,8 +19,8 @@ function room_reservations_node_info() {
       'base' => 'room_reservations',
       'description' => t('Category of reservable rooms.'),
       'has_title' => TRUE,
-      'title_label' => t('Unique name'),
-      'has_body' => TRUE,
+      'title_label' => t('Name'),
+      'has_body' => FALSE,
       'body_label' => t('Displayed category name'),
       'locked' => TRUE,
     ),
@@ -63,16 +63,27 @@ function room_reservations_node_info() {
  */
 function room_reservations_node_type_insert($content_type) {
   switch ($content_type->type) {
+    case 'room_reservations_category':
+      // Create all the fields we are adding to our content type.
+      foreach (_room_reservations_installed_fields_category() as $field) {
+        field_create_field($field);
+      }
+      // Create all the instances for our fields.
+      foreach (_room_reservations_installed_instances_category() as $instance) {
+        $instance['entity_type'] = 'node';
+        $instance['bundle'] = 'room_reservations_category';
+        field_create_instance($instance);
+      } 
+      break;   
+    
     case 'room_reservations_room':
       $body_instance = node_add_body_field($content_type, t('Description'));
       // Save our changes to the body field instance.
       field_update_instance($body_instance);
-
       // Create all the fields we are adding to our content type.
       foreach (_room_reservations_installed_fields_room() as $field) {
         field_create_field($field);
       }
-
       // Create all the instances for our fields.
       foreach (_room_reservations_installed_instances_room() as $instance) {
         $instance['entity_type'] = 'node';
@@ -86,7 +97,6 @@ function room_reservations_node_type_insert($content_type) {
       foreach (_room_reservations_installed_fields_reservation() as $field) {
         field_create_field($field);
       }
-
       // Create all the instances for our fields.
       foreach (_room_reservations_installed_instances_reservation() as $instance) {
         $instance['entity_type'] = 'node';
@@ -109,6 +119,73 @@ function room_reservations_node_type_insert($content_type) {
  */
 function room_reservations_form($node, $form_state) {
   return node_content_form($node, $form_state);
+}
+
+/**
+ * Define the fields for our content type.
+ *
+ * This big array is factored into this function for readability.
+ *
+ * @return array
+ *   An associative array specifying the fields we wish to add to our
+ *   new node type.
+ */
+function _room_reservations_installed_fields_category() {
+  return array(
+    'reservations_display_order' => array(
+      'field_name' => 'reservations_display_order',
+      'cardinality' => 1,
+      'type'        => 'list_integer',
+      'settings' => array(
+        'default_widget' => 'options_select',
+        'allowed_values' => array(
+          1 => '1',
+          2 => '2',
+          3 => '3',
+          4 => '4',
+          5 => '5',
+          6 => '6',
+          7 => '7',
+          8 => '8',         
+          9 => '9',
+          10 => '10',
+          11 => '11',
+          12 => '12',
+          13 => '13',
+          14 => '14',
+          15 => '15',
+          16 => '16',
+          17 => '17',
+          18 => '18',         
+          19 => '19',
+          20 => '20',
+          21 => '21',
+          22 => '22',
+          23 => '23',
+          24 => '24',
+          25 => '25',
+        ),
+      ),
+    ),
+  );
+}
+
+function _room_reservations_installed_instances_category() {
+  return array(
+    'reservations_display_order' => array(
+      'field_name' => 'reservations_display_order',           
+      'required' => TRUE,
+      'label'       => t('Display Order'),
+      'widget'      => array(
+        'type'    => 'options_select',
+      ),
+      'default_value' => array(
+        1 => array(
+          'value' => 1,
+        ),
+      ),
+    ),
+  );
 }
 
 /**
@@ -149,7 +226,7 @@ function _room_reservations_installed_instances_room() {
   return array(
     'room_capacity' => array(
       'field_name' => 'room_capacity',           
-      'required' => true,
+      'required' => TRUE,
       'label'       => t('Capacity'),
       'widget'      => array(
         'type'    => 'text_textfield',
@@ -157,10 +234,23 @@ function _room_reservations_installed_instances_room() {
     ),
     'room_category' => array(
       'field_name' => 'room_category',           
-      'required' => true,
+      'required' => TRUE,
       'label'       => t('Category'),
       'widget'      => array(
         'type'    => 'options_select',
+      ),
+    ),
+    'reservations_display_order' => array(
+      'field_name' => 'reservations_display_order',           
+      'required' => TRUE,
+      'label'       => t('Display Order'),
+      'widget'      => array(
+        'type'    => 'options_select',
+      ),
+      'default_value' => array(
+        1 => array(
+          'value' => 1,
+        ),
       ),
     ),
   );

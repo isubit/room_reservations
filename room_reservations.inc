@@ -246,7 +246,7 @@ function _room_reservations_categories() {
   }
   $cat_objs = node_load_multiple($cids);
   foreach ($cat_objs as $cat) {
-    $categories[] = (Array) $cat;  
+    $categories[] = (array) $cat;  
   }
   return $categories;
 }
@@ -265,7 +265,7 @@ function _room_reservations_rooms() {
   }
   $room_objs = node_load_multiple($rids);
   foreach ($room_objs as $room) {
-    $rooms[] = (Array) $room;  
+    $rooms[] = (array) $room;  
   }
   return $rooms;
 }

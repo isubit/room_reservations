@@ -277,7 +277,8 @@ function theme_room_reservations($variables) {
               $booked_class = 'closed';
             }
             // The time slot can be reserved by the current user.
-            if ($booked_class == 'reservable' && (user_access('create room reservations standard') || user_access('create room reservations extended') ||user_access('administer room reservations system'))) {
+            if ($booked_class == 'reservable' && (user_access('create room reservations standard') || 
+              user_access('create room reservations extended') || user_access('administer room reservations system'))) {
               $link = l(
                 '<img src="' . base_path() . drupal_get_path('module', 'room_reservations') . '/images/clear.png" />',
                 'node/add/room-reservations-reservation/' . $month_number . '/' . $xday . '/' . $time_slot['time'] . '/' . $rid,
