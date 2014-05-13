@@ -265,7 +265,7 @@ function _room_reservations_rooms() {
   }
   $room_objs = node_load_multiple($rids);
   foreach ($room_objs as $room) {
-    $rooms[] = (array) $room;  
+    $rooms[] = (Array) $room;  
   }
   return $rooms;
 }

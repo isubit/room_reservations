@@ -59,7 +59,8 @@ function room_reservations_uninstall() {
   db_drop_table('{field_revision_reservation_room}');    */       
   
   // remove reservation type                                    
-  db_query("DELETE FROM {node_type} WHERE type LIKE 'room_reservations_reservation'");
-  db_query("DELETE FROM {field_config} WHERE field_name LIKE 'reservation_%'"); 
-  db_query("DELETE FROM {field_config_instance} WHERE bundle LIKE 'room_reservations_reservation'");
+  db_query("DELETE FROM {node_type} WHERE type LIKE 'room_reservations_%'");
+  db_query("DELETE FROM {field_config} WHERE field_name LIKE 'reservation%'");    
+  db_query("DELETE FROM {field_config} WHERE field_name IN ('room_category', 'room_capacity')"); 
+  db_query("DELETE FROM {field_config_instance} WHERE bundle LIKE 'room_reservations_%'");
 }

@@ -21,7 +21,6 @@ function room_reservations_node_info() {
       'has_title' => TRUE,
       'title_label' => t('Name'),
       'has_body' => FALSE,
-      'body_label' => t('Displayed category name'),
       'locked' => TRUE,
     ),
     'room_reservations_room' => array(
@@ -74,8 +73,8 @@ function room_reservations_node_type_insert($content_type) {
         $instance['bundle'] = 'room_reservations_category';
         field_create_instance($instance);
       } 
-      break;   
-    
+      break;
+      
     case 'room_reservations_room':
       $body_instance = node_add_body_field($content_type, t('Description'));
       // Save our changes to the body field instance.
@@ -130,59 +129,85 @@ function room_reservations_form($node, $form_state) {
  *   An associative array specifying the fields we wish to add to our
  *   new node type.
  */
-function _room_reservations_installed_fields_category() {
+function _room_reservations_installed_fields_room() {
   return array(
-    'reservations_display_order' => array(
-      'field_name' => 'reservations_display_order',
+    'room_category' => array(
+      'field_name' => 'room_category',
       'cardinality' => 1,
-      'type'        => 'list_integer',
+      'type'        => 'entityreference',
+      'settings'    => array(
+        'target_type' => 'node', 
+        'default_widget' => 'options_select',     
+        'handler' => 'base',
+        'handler_settings' => array('target_bundles' => array('room_reservations_category')),
+      ),
+    ),
+    'room_capacity' => array(
+      'field_name' => 'room_capacity',
+      'cardinality' => 1,
+      'type'        => 'number_integer',
       'settings' => array(
-        'default_widget' => 'options_select',
-        'allowed_values' => array(
-          1 => '1',
-          2 => '2',
-          3 => '3',
-          4 => '4',
-          5 => '5',
-          6 => '6',
-          7 => '7',
-          8 => '8',         
-          9 => '9',
-          10 => '10',
-          11 => '11',
-          12 => '12',
-          13 => '13',
-          14 => '14',
-          15 => '15',
-          16 => '16',
-          17 => '17',
-          18 => '18',         
-          19 => '19',
-          20 => '20',
-          21 => '21',
-          22 => '22',
-          23 => '23',
-          24 => '24',
-          25 => '25',
-        ),
+        'default_widget' => 'text',
       ),
     ),
   );
 }
 
-function _room_reservations_installed_instances_category() {
+function _room_reservations_installed_instances_room() {
   return array(
-    'reservations_display_order' => array(
-      'field_name' => 'reservations_display_order',           
-      'required' => TRUE,
-      'label'       => t('Display Order'),
+    'room_capacity' => array(
+      'field_name' => 'room_capacity',           
+      'required' => true,
+      'label'       => t('Capacity'),
+      'widget'      => array(
+        'type'    => 'text_textfield',
+      ),
+    ),
+    'room_category' => array(
+      'field_name' => 'room_category',           
+      'required' => true,
+      'label'       => t('Category'),
       'widget'      => array(
         'type'    => 'options_select',
       ),
+    ),
+    'reservations_display_order' => array(
+      'bundle' => 'room_reservations_category',
       'default_value' => array(
-        1 => array(
+        0 => array(
           'value' => 1,
         ),
+      ),
+      'deleted' => 0,
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'list',
+          'settings' => array(),
+          'type' => 'list_default',
+          'weight' => 0,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'reservations_display_order',
+      'label' => 'Display Order',
+      'required' => 0,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(),
+        'type' => 'options_select',
+        'weight' => 1,
       ),
     ),
   );
@@ -197,63 +222,110 @@ function _room_reservations_installed_instances_category() {
  *   An associative array specifying the fields we wish to add to our
  *   new node type.
  */
-function _room_reservations_installed_fields_room() {
-  return array(
-    'room_category' => array(
-      'field_name' => 'room_category',
-      'cardinality' => 1,
-      'type'        => 'entityreference',
-      'settings'    => array(
-        'target_type' => 'node', 
-        'default_widget' => 'options_select',     
-        'handler' => 'base',
-        'handler_settings' => array('target_bundles' => array('room_reservations_category')),
+function _room_reservations_installed_fields_category() {
+  $field_bases = array();
+  
+  // Exported field_base: 'reservations_display_order'
+  $field_bases['reservations_display_order'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'reservations_display_order',
+    'foreign keys' => array(),
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
       ),
     ),
-
-    'room_capacity' => array(
-      'field_name' => 'room_capacity',
-      'cardinality' => 1,
-      'type'        => 'list_integer',
-      'settings' => array(
-        'default_widget' => 'text',
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        1 => 1,
+        2 => 2,
+        3 => 3,
+        4 => 4,
+        5 => 5,
+        6 => 6,
+        7 => 7,
+        8 => 8,
+        9 => 9,
+        10 => 10,
+        11 => 11,
+        12 => 12,
+        13 => 13,
+        14 => 14,
+        15 => 15,
+        16 => 16,
+        17 => 17,
+        18 => 18,
+        19 => 19,
+        20 => 20,
+        21 => 21,
+        22 => 22,
+        23 => 23,
+        24 => 24,
+        25 => 25,
       ),
+      'allowed_values_function' => '',
+      'profile2_private' => FALSE,
     ),
+    'translatable' => 0,
+    'type' => 'list_integer',
   );
+  return $field_bases;
 }
 
-function _room_reservations_installed_instances_room() {
-  return array(
-    'room_capacity' => array(
-      'field_name' => 'room_capacity',           
-      'required' => TRUE,
-      'label'       => t('Capacity'),
-      'widget'      => array(
-        'type'    => 'text_textfield',
+function _room_reservations_installed_instances_category() {
+  $field_instances = array();
+  
+  // Exported field_instance: 'node-room_reservations_category-reservations_display_order'
+  $field_instances['node-room_reservations_category-reservations_display_order'] = array(
+    'bundle' => 'room_reservations_category',
+    'default_value' => array(
+      0 => array(
+        'value' => 1,
       ),
     ),
-    'room_category' => array(
-      'field_name' => 'room_category',           
-      'required' => TRUE,
-      'label'       => t('Category'),
-      'widget'      => array(
-        'type'    => 'options_select',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
       ),
     ),
-    'reservations_display_order' => array(
-      'field_name' => 'reservations_display_order',           
-      'required' => TRUE,
-      'label'       => t('Display Order'),
-      'widget'      => array(
-        'type'    => 'options_select',
-      ),
-      'default_value' => array(
-        1 => array(
-          'value' => 1,
-        ),
-      ),
+    'entity_type' => 'node',
+    'field_name' => 'reservations_display_order',
+    'label' => 'Display Order',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(),
+      'type' => 'options_select',
+      'weight' => 1,
     ),
   );
+
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('Display Order');
+
+  return $field_instances;
 }
 
 /**
