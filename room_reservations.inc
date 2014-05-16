@@ -240,13 +240,18 @@ class Reservation {
  */
 function _room_reservations_categories() {
   $categories = array();
-  $results = db_query("SELECT nid FROM {node} WHERE type = 'room_reservations_category'");
-  foreach ($results as $data) {
-    $cids[] = $data->nid;
-  }
-  $cat_objs = node_load_multiple($cids);
-  foreach ($cat_objs as $cat) {
-    $categories[] = (array) $cat;  
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'room_reservations_category')   
+    // dangerous as this does more than Order By as it does not include records which do not have this field set
+    ->fieldOrderBy('reservations_display_order', 'value', 'ASC');
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $cids = array_keys($result['node']);
+    $cat_objs = node_load_multiple($cids);
+    foreach ($cat_objs as $cat) {
+      $categories[] = (array) $cat;  
+    }
   }
   return $categories;
 }
@@ -259,13 +264,18 @@ function _room_reservations_categories() {
  */
 function _room_reservations_rooms() {
   $rooms = array();
-  $results = db_query("SELECT nid FROM {node} WHERE type = 'room_reservations_room'");
-  foreach ($results as $data) {
-    $rids[] = $data->nid;
-  }
-  $room_objs = node_load_multiple($rids);
-  foreach ($room_objs as $room) {
-    $rooms[] = (Array) $room;  
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'room_reservations_room')   
+    // dangerous as this does more than Order By as it does not include records which do not have this field set
+    ->fieldOrderBy('reservations_display_order', 'value', 'ASC');
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $rids = array_keys($result['node']);
+    $room_objs = node_load_multiple($rids);
+    foreach ($room_objs as $room) {
+      $rooms[] = (array) $room;  
+    }
   }
   return $rooms;
 }

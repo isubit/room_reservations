@@ -198,7 +198,7 @@ function _room_reservations_installed_instances_room() {
       'entity_type' => 'node',
       'field_name' => 'reservations_display_order',
       'label' => 'Display Order',
-      'required' => 0,
+      'required' => TRUE,
       'settings' => array(
         'user_register_form' => FALSE,
       ),
@@ -308,7 +308,7 @@ function _room_reservations_installed_instances_category() {
     'entity_type' => 'node',
     'field_name' => 'reservations_display_order',
     'label' => 'Display Order',
-    'required' => 0,
+    'required' => TRUE,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
