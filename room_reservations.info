@@ -6,7 +6,14 @@ dependencies[] = token
 dependencies[] = entityreference
 dependencies[] = field
 dependencies[] = views
-dependencies[] = qtip
+;dependencies[] = qtip
 dependencies[] = date    
 dependencies[] = date_popup
 files[] = room_reservations.inc
+
+; Information added by Drupal.org packaging script on 2014-05-16
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "room_reservations"
+datestamp = "1400256228"
+

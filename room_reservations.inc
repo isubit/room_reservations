@@ -244,7 +244,7 @@ function _room_reservations_categories() {
   $query->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', 'room_reservations_category')   
     // dangerous as this does more than Order By as it does not include records which do not have this field set
-    ->fieldOrderBy('reservations_display_order', 'value', 'ASC');
+    ->fieldOrderBy('reservation_display_order', 'value', 'ASC');
   $result = $query->execute();
   if (isset($result['node'])) {
     $cids = array_keys($result['node']);
@@ -268,7 +268,7 @@ function _room_reservations_rooms() {
   $query->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', 'room_reservations_room')   
     // dangerous as this does more than Order By as it does not include records which do not have this field set
-    ->fieldOrderBy('reservations_display_order', 'value', 'ASC');
+    ->fieldOrderBy('reservation_display_order', 'value', 'ASC');
   $result = $query->execute();
   if (isset($result['node'])) {
     $rids = array_keys($result['node']);

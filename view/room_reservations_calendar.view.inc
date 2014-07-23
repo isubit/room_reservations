@@ -258,7 +258,7 @@ function theme_room_reservations($variables) {
           $room_info = '<span class="qtip-link"><span class="qtip-tooltip">' . $room_desc .  '</span>' . $room_link . '</span>';
         }
         else {
-          $room_link;
+          $room_info = $room_link;
         }
         
         if ($room['room_category']['und'][0]['target_id'] == $category['nid']) {

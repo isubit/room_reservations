@@ -171,7 +171,7 @@ function _room_reservations_installed_instances_room() {
         'type'    => 'options_select',
       ),
     ),
-    'reservations_display_order' => array(
+    'reservation_display_order' => array(
       'bundle' => 'room_reservations_category',
       'default_value' => array(
         0 => array(
@@ -196,7 +196,7 @@ function _room_reservations_installed_instances_room() {
         ),
       ),
       'entity_type' => 'node',
-      'field_name' => 'reservations_display_order',
+      'field_name' => 'reservation_display_order',
       'label' => 'Display Order',
       'required' => TRUE,
       'settings' => array(
@@ -225,13 +225,13 @@ function _room_reservations_installed_instances_room() {
 function _room_reservations_installed_fields_category() {
   $field_bases = array();
   
-  // Exported field_base: 'reservations_display_order'
-  $field_bases['reservations_display_order'] = array(
+  // Exported field_base: 'reservation_display_order'
+  $field_bases['reservation_display_order'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'reservations_display_order',
+    'field_name' => 'reservation_display_order',
     'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
@@ -280,8 +280,8 @@ function _room_reservations_installed_fields_category() {
 function _room_reservations_installed_instances_category() {
   $field_instances = array();
   
-  // Exported field_instance: 'node-room_reservations_category-reservations_display_order'
-  $field_instances['node-room_reservations_category-reservations_display_order'] = array(
+  // Exported field_instance: 'node-room_reservations_category-reservation_display_order'
+  $field_instances['node-room_reservations_category-reservation_display_order'] = array(
     'bundle' => 'room_reservations_category',
     'default_value' => array(
       0 => array(
@@ -306,7 +306,7 @@ function _room_reservations_installed_instances_category() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'reservations_display_order',
+    'field_name' => 'reservation_display_order',
     'label' => 'Display Order',
     'required' => TRUE,
     'settings' => array(
