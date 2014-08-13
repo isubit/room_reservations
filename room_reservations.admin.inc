@@ -535,91 +535,66 @@ function room_reservations_admin_settings_default_hours_validate($form_id, &$for
     for ($day = 0; $day < 7; $day++) {
       $open = TRUE;
       $second_shift = FALSE;
-      $first_shift_open
-        = $form_state['values']['day_' . $day]['first_shift_open_' . $day];
-      $first_shift_close
-        = $form_state['values']['day_' . $day]['first_shift_close_' . $day];
-      $second_shift_open
-        = $form_state['values']['day_' . $day]['second_shift_open_' . $day];
-      $second_shift_close
-        = $form_state['values']['day_' . $day]['second_shift_close_' . $day];
-      $int_first_shift_open
-        = intval(
-        $form_state['values']['day_' . $day]['first_shift_open_' . $day]);
-      $int_first_shift_close
-        = intval(
-        $form_state['values']['day_' . $day]['first_shift_close_' . $day]);
-      $int_second_shift_open
-        = intval(
-        $form_state['values']['day_' . $day]['second_shift_open_' . $day]);
-      $int_second_shift_close
-        = intval(
-        $form_state['values']['day_' . $day]['second_shift_close_' . $day]);
+      $first_shift_open = $form_state['values']['day_' . $day]['first_shift_open_' . $day];
+      $first_shift_close = $form_state['values']['day_' . $day]['first_shift_close_' . $day];
+      $second_shift_open = $form_state['values']['day_' . $day]['second_shift_open_' . $day];
+      $second_shift_close = $form_state['values']['day_' . $day]['second_shift_close_' . $day];
+      $int_first_shift_open = intval($form_state['values']['day_' . $day]['first_shift_open_' . $day]);
+      $int_first_shift_close = intval($form_state['values']['day_' . $day]['first_shift_close_' . $day]);
+      $int_second_shift_open = intval($form_state['values']['day_' . $day]['second_shift_open_' . $day]);
+      $int_second_shift_close = intval($form_state['values']['day_' . $day]['second_shift_close_' . $day]);
       // Closed.
-      if (($int_first_shift_open == 9999) && 
-        ($int_first_shift_close == 9999) && 
-        ($int_second_shift_open == 9999) && 
-        ($int_second_shift_close == 9999)) {
+      if (($int_first_shift_open == 9999) && ($int_first_shift_close == 9999) && ($int_second_shift_open == 9999) && ($int_second_shift_close == 9999)) {
         $open = FALSE;
       }
       // First shift.
       if ($open) {
         if ($int_first_shift_open == 9999) {
           $field = 'day_' . $day . '][first_shift_open_' . $day;
-          $message = t('!day - First shift open is required.', 
-            array('!day' => $days[$day]));
+          $message = t('!day - First shift open is required.', array('!day' => $days[$day]));
           form_set_error($field, check_plain($message));
         }
         elseif ($int_first_shift_close == 9999) {
           $field = 'day_' . $day . '][first_shift_close_' . $day;
-          $message = t('!day - First shift close is required.', 
-            array('!day' => $days[$day]));
+          $message = t('!day - First shift close is required.', array('!day' => $days[$day]));
           form_set_error($field, check_plain($message));
         }
         elseif ($int_first_shift_open >= $int_first_shift_close) {
           $field = 'day_' . $day . '][first_shift_close_' . $day;
-          $message = t('!day - First shift close must be later than first shift
-            open.', array('!day' => $days[$day]));
+          $message = t('!day - First shift close must be later than first shift open.', array('!day' => $days[$day]));
           form_set_error($field, check_plain($message));
         }
       }
       // Second shift.
       if ($open) {
-        if (($int_second_shift_open != 9999) || 
-          ($int_second_shift_close != 9999)) {
+        if (($int_second_shift_open != 9999) || ($int_second_shift_close != 9999)) {
           $second_shift = TRUE;
         }
       }
       if ($second_shift) {
-        if (($int_first_shift_open == 9999) && 
-          ($int_first_shift_close == 9999)) {
+        if (($int_first_shift_open == 9999) && ($int_first_shift_close == 9999)) {
           $field = 'day_' . $day . '][second_shift_open_' . $day;
-          $message = t('!day - Cannot have a second shift without a first
-            shift.', array('!day' => $days[$day]));
+          $message = t('!day - Cannot have a second shift without a first shift.', array('!day' => $days[$day]));
           form_set_error($field, check_plain($message));
         }
         elseif ($int_second_shift_open == 9999) {
           $field = 'day_' . $day . '][second_shift_open_' . $day;
-          $message = t('!day - Second shift open is missing.', 
-            array('!day' => $days[$day]));
+          $message = t('!day - Second shift open is missing.', array('!day' => $days[$day]));
           form_set_error($field, check_plain($message));
         }
         elseif ($int_second_shift_close == 9999) {
           $field = 'day_' . $day . '][second_shift_close_' . $day;
-          $message = t('!day - Second shift close is missing.', 
-            array('!day' => $days[$day]));
+          $message = t('!day - Second shift close is missing.', array('!day' => $days[$day]));
           form_set_error($field, check_plain($message));
         }
         elseif ($int_second_shift_open <= $int_first_shift_close) {
           $field = 'day_' . $day . '][second_shift_open_' . $day;
-          $message = t('!day - Second shift open must be later than first
-            shift close.', array('!day' => $days[$day]));
+          $message = t('!day - Second shift open must be later than first shift close.', array('!day' => $days[$day]));
           form_set_error($field, check_plain($message));
         }
         elseif ($int_second_shift_open >= $int_second_shift_close) {
           $field = 'day_' . $day . '][second_shift_close_' . $day;
-          $message = t('!day - Second shift close must be later than second
-            shift opten.', array('!day' => $days[$day]));
+          $message = t('!day - Second shift close must be later than second shift opten.', array('!day' => $days[$day]));
           form_set_error($field, check_plain($message));
         }
       }
@@ -712,31 +687,35 @@ function room_reservations_admin_settings_default_hours_submit($form_id, &$form_
 function room_reservations_admin_settings_daily_hours($form, &$form_state, $selected_month = NULL) {
   $cur_months = _room_reservations_current_months();
   
-  if (!$selected_month) {
-    // create a form to pick a month.
-    $month_options = array();
-    $first = current($cur_months);
-    foreach ($cur_months as $cur_month) {
-      $yyyy_mm = $cur_month['YYYY_MM'];
-      $display = t($cur_month['display']);
-      $month_options[$yyyy_mm] = t($cur_month['display']);
-    }
-    // Form.
-    $form['select_month']['month'] = array(
-      '#title' => t('Month'),
-      '#type' => 'select',
-      '#options' => $month_options,
-      '#default_value' => $first['YYYY_MM'],
-      '#weight' => -4000,
-    );
-    $form['select_month']['save'] = array(
-      '#type' => 'submit',
-      '#value' => t('Select a month'),
-      '#weight' => -3990,
-    ); 
-    
-    // and if no month has been selected; just return this form
-
+  $selected_month = $form_state['input']['month'] ? $form_state['input']['month'] : $selected_month;
+  
+  // create a form to pick a month.
+  $month_options = array();
+  $first = current($cur_months);
+  foreach ($cur_months as $cur_month) {
+    $yyyy_mm = $cur_month['YYYY_MM'];
+    $display = t($cur_month['display']);
+    $month_options[$yyyy_mm] = t($cur_month['display']);
+  }
+  
+  // Form.
+  $form['select_month'] = array(
+    '#type' => 'container',
+    '#weight' => -2000,
+  );
+  $form['select_month']['month'] = array(
+    '#title' => t('Month'),
+    '#type' => 'select',
+    '#options' => $month_options,
+    '#default_value' => $selected_month ? $selected_month : $first['YYYY_MM'],
+  );
+  $form['select_month']['save'] = array(
+    '#type' => 'submit',
+    '#value' => t('Select a month'),
+  ); 
+  
+  // and if no month has been selected; just return this form
+  if (!$selected_month) {  
     return $form;
   }
   
@@ -835,8 +814,9 @@ function room_reservations_admin_settings_daily_hours($form, &$form_state, $sele
   );
   $form['month'] = array(
     '#type' => 'value',
-    '#value' => $month_value,
+    '#value' => $selected_month,
   );
+  
   return $form;
 }
 
@@ -857,91 +837,66 @@ function room_reservations_admin_settings_daily_hours_validate($form_id, &$form_
       $dom = $day + 1;
       $open = TRUE;
       $second_shift = FALSE;
-      $first_shift_open
-        = $form_state['values']['day_' . $day]['first_shift_open_' . $day];
-      $first_shift_close
-        = $form_state['values']['day_' . $day]['first_shift_close_' . $day];
-      $second_shift_open
-        = $form_state['values']['day_' . $day]['second_shift_open_' . $day];
-      $second_shift_close
-        = $form_state['values']['day_' . $day]['second_shift_close_' . $day];
-      $int_first_shift_open
-        = intval(
-        $form_state['values']['day_' . $day]['first_shift_open_' . $day]);
-      $int_first_shift_close
-        = intval(
-        $form_state['values']['day_' . $day]['first_shift_close_' . $day]);
-      $int_second_shift_open
-        = intval(
-        $form_state['values']['day_' . $day]['second_shift_open_' . $day]);
-      $int_second_shift_close
-        = intval(
-        $form_state['values']['day_' . $day]['second_shift_close_' . $day]);
+      $first_shift_open = $form_state['values']['day_' . $day]['first_shift_open_' . $day];
+      $first_shift_close = $form_state['values']['day_' . $day]['first_shift_close_' . $day];
+      $second_shift_open = $form_state['values']['day_' . $day]['second_shift_open_' . $day];
+      $second_shift_close = $form_state['values']['day_' . $day]['second_shift_close_' . $day];
+      $int_first_shift_open = intval($form_state['values']['day_' . $day]['first_shift_open_' . $day]);
+      $int_first_shift_close = intval($form_state['values']['day_' . $day]['first_shift_close_' . $day]);
+      $int_second_shift_open = intval($form_state['values']['day_' . $day]['second_shift_open_' . $day]);
+      $int_second_shift_close = intval($form_state['values']['day_' . $day]['second_shift_close_' . $day]);
       // Closed.
-      if (($int_first_shift_open == 9999) && 
-        ($int_first_shift_close == 9999) && 
-        ($int_second_shift_open == 9999) && 
-        ($int_second_shift_close == 9999)) {
+      if (($int_first_shift_open == 9999) && ($int_first_shift_close == 9999) && ($int_second_shift_open == 9999) && ($int_second_shift_close == 9999)) {
         $open = FALSE;
       }
       // First shift.
       if ($open) {
         if ($int_first_shift_open == 9999) {
           $field = 'day_' . $day . '][first_shift_open_' . $day;
-          $message = t('!day - First shift open is required.', 
-            array('!day' => $dom . ' ' . $dow));
+          $message = t('!day - First shift open is required.', array('!day' => $dom . ' ' . $dow));
           form_set_error($field, check_plain($message));
         }
         elseif ($int_first_shift_close == 9999) {
           $field = 'day_' . $day . '][first_shift_close_' . $day;
-          $message = t('!day - First shift close is required.', 
-            array('!day' => $dom . ' ' . $dow));
+          $message = t('!day - First shift close is required.', array('!day' => $dom . ' ' . $dow));
           form_set_error($field, check_plain($message));
         }
         elseif ($int_first_shift_open >= $int_first_shift_close) {
           $field = 'day_' . $day . '][first_shift_close_' . $day;
-          $message = t('!day - First shift close must be later than first shift
-            open.', array('!day' => $dom . ' ' . $dow));
+          $message = t('!day - First shift close must be later than first shift open.', array('!day' => $dom . ' ' . $dow));
           form_set_error($field, check_plain($message));
         }
       }
       // Second shift.
       if ($open) {
-        if (($int_second_shift_open != 9999) || 
-          ($int_second_shift_close != 9999)) {
+        if (($int_second_shift_open != 9999) || ($int_second_shift_close != 9999)) {
           $second_shift = TRUE;
         }
       }
       if ($second_shift) {
-        if (($int_first_shift_open == 9999) && 
-          ($int_first_shift_close == 9999)) {
+        if (($int_first_shift_open == 9999) && ($int_first_shift_close == 9999)) {
           $field = 'day_' . $day . '][second_shift_open_' . $day;
-          $message = t('!day - Cannot have a second shift without a first
-            shift.', array('!day' => $dom . ' ' . $dow));
+          $message = t('!day - Cannot have a second shift without a first shift.', array('!day' => $dom . ' ' . $dow));
           form_set_error($field, check_plain($message));
         }
         elseif ($int_second_shift_open == 9999) {
           $field = 'day_' . $day . '][second_shift_open_' . $day;
-          $message = t('!day - Second shift open is missing.', 
-            array('!day' => $dom . ' ' . $dow));
+          $message = t('!day - Second shift open is missing.', array('!day' => $dom . ' ' . $dow));
           form_set_error($field, check_plain($message));
         }
         elseif ($int_second_shift_close == 9999) {
           $field = 'day_' . $day . '][second_shift_close_' . $day;
-          $message = t('!day - Second shift close is missing.', 
-            array('!day' => $dom . ' ' . $dow));
+          $message = t('!day - Second shift close is missing.', array('!day' => $dom . ' ' . $dow));
           form_set_error($field, check_plain($message));
         }
         elseif ($int_second_shift_open <= $int_first_shift_close) {
           $field = 'day_' . $day . '][second_shift_open_' . $day;
-          $message = t('!day - Second shift open must be later than first
-            shift close.', array('!day' => $dom . ' ' . $dow));
+          $message = t('!day - Second shift open must be later than first shift close.', array('!day' => $dom . ' ' . $dow));
           form_set_error($field, check_plain($message));
         }
         elseif ($int_second_shift_open >= $int_second_shift_close) {
           $field = 'day_' . $day . '][second_shift_close_' . $day;
-          $message = t('!day - Second shift close must be later than second
-            shift opten.', array('!day' => $dom . ' ' . $dow));
+          $message = t('!day - Second shift close must be later than second shift opten.', array('!day' => $dom . ' ' . $dow));
           form_set_error($field, check_plain($message));
         }
       }
@@ -955,9 +910,8 @@ function room_reservations_admin_settings_daily_hours_validate($form_id, &$form_
 function room_reservations_admin_settings_daily_hours_submit($form_id, &$form_state) {
   // Select month.
   if ($form_state['clicked_button']['#value'] == t('Select a month')) {
-    $form_state['redirect']
-      = 'admin/config/system/room_reservations/hours/daily_hours/' .
-      $form_state['values']['month'];
+    $month = $form_state['input']['select_month']['month'] ? $form_state['input']['select_month']['month'] : $form_state['values']['month'];
+    $form_state['redirect'] = 'admin/config/system/room_reservations/hours/daily_hours/' . $month;
   }
   // Process the daily hours for the selected month.
   elseif ($form_state['clicked_button']['#value'] == t('Save configuration')) {
