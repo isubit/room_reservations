@@ -404,7 +404,7 @@ function _room_reservations_create_mo_hours($year, $month, $yyyy_mm, $array = fa
 function _room_reservations_dates($selected_month = NULL, $selected_day = NULL) {
   // Determine date information (month, day, year, etc.) for each of these days.
   $dates = array();
-    if (user_access('create room reservations extended')) {
+  if (user_access('create room reservations extended')) {
     $advancedays = variable_get('room_reservations_advance_extended', 180);
   }
   else {
@@ -548,10 +548,15 @@ function _room_reservations_facility_hours($reset = FALSE) {
   static $building_hours;
   if (!isset($building_hours) || $reset) {
     $building_hours = array();
-    $advance_days = variable_get('room_reservations_advance_days', 180);
+    if (user_access('create room reservations extended')) {
+      $advancedays = variable_get('room_reservations_advance_extended', 180);
+    }
+    else {
+      $advancedays = variable_get('room_reservations_advance_standard', 14);
+    }
     
     // build a list of the months we need to look at
-    for ($x = 0; $x < $advance_days; $x++) { 
+    for ($x = 0; $x < $advancedays; $x++) { 
       $months[] = date('Y_m', mktime(0, 0, 0, date("m"), date("d") + $x, date("Y")));
     }
     $months = array_unique($months);
@@ -572,7 +577,7 @@ function _room_reservations_facility_hours($reset = FALSE) {
       }
     }
     $start = (date('j') - 1) * 5;
-    for ($x = 0; $x < $advance_days; $x++) {
+    for ($x = 0; $x < $advancedays; $x++) {
       $yyyymmdd  = date('Y-m-d', mktime(0, 0, 0, date("m"), date("d") + $x, date("Y")));
       $first_shift_open = $mo_hours[($start + ($x * 5) + 1)];
       $first_shift_close = $mo_hours[($start + ($x * 5) + 2)];
