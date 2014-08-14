@@ -75,7 +75,17 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
     else {
       $time_slot['open'] = FALSE;
     }
-    $hours[$x] = $time_slot;
+    
+    // if not open ALL day let's limit display to start just before first open shift (or 2nd if only one used)
+    if (!$open_24 && $int_first_shift_open < 9999 && ($hours[$x]['time'] < $int_first_shift_open - 200)) {
+      unset($hours[$x]);
+    }
+    elseif (!$open_24 && $int_second_shift_open < 9999 && ($hours[$x]['time'] < $int_second_shift_open - 200)) {
+      unset($hours[$x]);
+    }
+    else {
+      $hours[$x] = $time_slot;
+    }
     $x++;
   }
   $all_hours = _room_reservations_hours();
