@@ -331,11 +331,10 @@ function room_reservations_res_form_validate($form_id, &$form_state) {
       // Loop through individual messages, looking for ones to remove or
       // replace.
       if (room_reservations_rewrite_error($message) === FALSE) {
-        drupal_set_message(check_plain($message), $type);
+        drupal_set_message($message, $type);
       }
       elseif (room_reservations_rewrite_error($message) !== TRUE) {
-        drupal_set_message(room_reservations_rewrite_error(
-            $message), $type);
+        drupal_set_message(room_reservations_rewrite_error($message), $type);
       }
     }
   }
@@ -453,12 +452,12 @@ function room_reservations_res_form_submit($form_id, &$form_state) {
       'day_of_week' => $day_of_week,
       'time' => $display_hour,
       'minutes' => $length,
-      'name' => check_plain($group_name),
+      'name' => $group_name,
       'id' => $id,
       'carrier' => $carrier,
       'phone' => $phone,
     );
-    $from = check_plain(_room_reservations_get_variable('from_address'));
+    $from = _room_reservations_get_variable('from_address');
     if ($result) {
       drupal_set_message(t('Your group study room reservation has been made.'));
       // Send an email to each person in the group.  If the person is the one

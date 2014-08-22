@@ -206,8 +206,7 @@ class Reservation {
       db_set_active($mainsite);
     }
     if ($id) {
-      $sql = "SELECT * FROM {room_reservations} WHERE id = :id AND deleted = 'N'
-      ";
+      $sql = "SELECT * FROM {room_reservations} WHERE id = :id AND deleted = 'N'";
       $record_count = 0;
       $results = db_query($sql, array(':id' => $id));
       foreach ($results as $data) {
@@ -216,13 +215,13 @@ class Reservation {
         $this->time = $data->time;
         $this->length = $data->length;
         $this->room = $data->room;
-        $this->name = check_plain($data->name);
+        $this->name = $data->name;
         $this->groupSize = $data->group_size;
         $this->userName = $data->user_name;
-        $this->emailAddresses = check_plain($data->email_addresses);
+        $this->emailAddresses = $data->email_addresses;
         $this->textmsg = $data->textmsg;
         $this->carrier = $data->carrier;
-        $this->phone = check_plain($data->phone);
+        $this->phone = $data->phone;
         $record_count++;
       }
     }
@@ -1385,8 +1384,7 @@ function _room_reservations_send_sms($message_type, $params) {
       _room_reservations_get_variable('reminder_text_sms')), $params);
   }
   $message = wordwrap($message_body, 70);
-  $from = $from = check_plain(
-    _room_reservations_get_variable('from_address_sms'));
+  $from = _room_reservations_get_variable('from_address_sms');
   $headers = "From: " . $from;
   mail($to, $subject, $message, $headers);
 }
@@ -1433,8 +1431,7 @@ function _room_reservations_replace_tokens($text, $parameters) {
  */
 function _room_reservations_default_email() {
   $default_option = _room_reservations_get_variable('default_email_address');
-  $default_domain = check_plain(
-    _room_reservations_get_variable('default_email_domain'));
+  $default_domain = _room_reservations_get_variable('default_email_domain');
   if (!isset($default_option)) {
     return '';
   }

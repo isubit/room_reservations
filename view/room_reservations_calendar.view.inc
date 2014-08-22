@@ -49,6 +49,10 @@ function theme_room_reservations($variables) {
   global $user;
   global $base_url;
   
+  // pass date format to JS
+  $format = strtolower(variable_get('room_reservations_picker_format', 'y/m/d'));
+  drupal_add_js(array('room_reservations' => array('dateformat' => $format)), 'setting');
+  
   extract($variables);
   // User information.
   $full_access = FALSE;
@@ -108,7 +112,7 @@ function theme_room_reservations($variables) {
           // and the user is allowed to view any reservation.
           if ($reservations[$display_room][$time_slot_time]['name']) {
             $output .= "<a href='" . $base_url . '/room_reservations/view/' . $reservations[$display_room][$time_slot_time]['id'] . "'>" .
-              check_plain($reservations[$display_room][$time_slot_time]['name']) . '</a>';
+              $reservations[$display_room][$time_slot_time]['name'] . '</a>';
           }
           else {
             $output .= '&nbsp;&nbsp;';
@@ -120,7 +124,7 @@ function theme_room_reservations($variables) {
           // current user.
           if ($reservations[$room->rid][$time_slot_time]['name']) {
             $output .= "<a href='" . $base_url . '/room_reservations/view/' . $reservations[$display_room][$time_slot_time]['id'] . "'>" .
-              check_plain($reservations[$display_room][$time_slot_time]['name']) . '</a>';
+              $reservations[$display_room][$time_slot_time]['name'] . '</a>';
           }
           else {
             $output .= '&nbsp;&nbsp;"';
@@ -128,10 +132,9 @@ function theme_room_reservations($variables) {
         }
         elseif (($reservations[$rid][$time_slot_time]['booked']) && 
           ($user_login_name != $reservations[$rid][$time_slot_time]['user_name'])) {
-          // The room has already been reserved for this time slot by a
-          // different user.
+          // The room has already been reserved for this time slot by a different user.
           if ($reservations[$rid][$time_slot_time]['name']) {
-            $output .= check_plain($reservations[$rid][$time_slot_time]['name']);
+            $output .= $reservations[$rid][$time_slot_time]['name'];
           }
           else {
             $output .= '&nbsp;&nbsp;"';
@@ -356,12 +359,13 @@ function room_reservations_admin_date_picker($form_state) {
     $yeardefault = $yearnow;
   }  
   
+  $format = str_replace('y', 'Y', strtolower(variable_get('room_reservations_picker_format', 'y/m/d')));
   $form['date'] = array(
     '#type' => 'date_popup',
     '#default_value' => $yeardefault . '-' . $default . ' 00:00:00',
     '#date_type' => DATE_DATETIME,
     '#date_timezone' => date_default_timezone(),
-    '#date_format' => 'Y/m/d',
+    '#date_format' => $format,
     '#date_increment' => 1,
     '#date_year_range' => '-0:+1',
     '#datepicker_options' => array(

@@ -41,8 +41,10 @@ function room_reservations_admin_settings($form, &$form_state) {
     '120' => '120',
     '150' => '150',
     '180' => '180',
-    '210' => '210',
-    '240' => '240',
+    '240' => '240',    
+    '360' => '360',
+    '480' => '480',
+    '600' => '600',
   );
   $form['room_reservations_title'] = array(
     '#title' => t('Application name'),
@@ -57,9 +59,9 @@ function room_reservations_admin_settings($form, &$form_state) {
   $form['room_reservations_advance_standard'] = array(
     '#title' => t('Days in advance (standard)'),
     '#type' => 'select',
-    '#options' => array(7 => 7, 14 => 14, 30 => 30, 60 => 60), 
-    '#description' => t('The number of days in advance that a reservation can be made by a standard user. Default is 14. Maximum is 60.'),
-    '#default_value' => variable_get('room_reservations_advance_standard', 180),
+    '#options' => array(7 => 7, 14 => 14, 30 => 30, 60 => 60, 90 => 90), 
+    '#description' => t('The number of days in advance that a reservation can be made by a standard user. Default is 14. Maximum is 90.'),
+    '#default_value' => variable_get('room_reservations_advance_standard', 14),
     '#weight' => -91,
   );
   $form['room_reservations_advance_extended'] = array(
@@ -106,6 +108,21 @@ function room_reservations_admin_settings($form, &$form_state) {
     '#description' => t('All reservations end 15 minutes before closing time.'),
     '#weight' => -50,
   );
+  
+  $form['room_reservations_date_displays'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Date display formats'),
+    '#collapsible' => true,
+    '#collapsed' => true,
+  );
+  $form['room_reservations_date_displays']['room_reservations_picker_format'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Date format for the popup date picker to select calendar date.'),
+    '#description' => t('Enter format in the form "y/m/d", "m/d/y", etc.'),
+    '#default_value' => variable_get('room_reservations_picker_format', 'y/m/d'),
+  );
+    
+  
   /*
   $form['room_reservations_group_size'] = array(
     '#title' => t('Include group size.'),
@@ -131,14 +148,14 @@ function room_reservations_admin_settings_validate($form_id, &$form_state) {
     if (!ctype_digit($data)) {
       $field = 'room_reservations_reservations_per_user';
       $message = t('Open reservations per user must be numeric.');
-      form_set_error($field, check_plain($message));
+      form_set_error($field, $message);
     }
     // Reservations per day.
     $data = $form_state['values']['room_reservations_reservations_per_day'];
     if (!ctype_digit($data)) {
       $field = 'room_reservations_reservations_per_day';
       $message = t('Reservations per day must be numeric.');
-      form_set_error($field, check_plain($message));
+      form_set_error($field, $message);
     }
   }
 }
@@ -199,7 +216,7 @@ function room_reservations_admin_settings_default_email_validate(
     if (($option == 2) && (!$domain)) {
       $field = 'domain';
       $message = t('A domain name must be entered when this option is selected.');
-      form_set_error($field, check_plain($message));
+      form_set_error($field, $message);
     }
   }
 }
@@ -230,10 +247,10 @@ function room_reservations_admin_settings_default_email_submit($form_id, &$form_
     $errors = TRUE;
   }
   if ($errors) {
-    drupal_set_message(check_plain($error), 'error');
+    drupal_set_message($error, 'error');
   }
   else {
-    drupal_set_message(check_plain($confirmation));
+    drupal_set_message($confirmation);
   }
 }
 
@@ -334,10 +351,10 @@ function room_reservations_admin_settings_reminders_submit($form_id, &$form_stat
     $errors = TRUE;
   }
   if ($errors) {
-    drupal_set_message(check_plain($error), 'error');
+    drupal_set_message($error, 'error');
   }
   else {
-    drupal_set_message(check_plain($confirmation));
+    drupal_set_message($confirmation);
   }
 }
 
@@ -351,7 +368,7 @@ function room_reservations_admin_settings_reminders_validate($form_id, &$form_st
     if ($reminder_time < $reminder_cutoff) {
       $field = 'reminder_time';
       $message = t("'Send reminder daily at' time cannot be earlier than 'Send reminders for reservations created before' time.");
-      form_set_error($field, check_plain($message));
+      form_set_error($field, $message);
     }
   }
 }
@@ -420,10 +437,10 @@ function room_reservations_admin_settings_mobile_submit($form_id, &$form_state) 
     $errors = TRUE;
   }
   if ($errors) {
-    drupal_set_message(check_plain($error), 'error');
+    drupal_set_message($error, 'error');
   }
   else {
-    drupal_set_message(check_plain($confirmation));
+    drupal_set_message($confirmation);
   }
 }
 
@@ -552,17 +569,17 @@ function room_reservations_admin_settings_default_hours_validate($form_id, &$for
         if ($int_first_shift_open == 9999) {
           $field = 'day_' . $day . '][first_shift_open_' . $day;
           $message = t('!day - First shift open is required.', array('!day' => $days[$day]));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
         elseif ($int_first_shift_close == 9999) {
           $field = 'day_' . $day . '][first_shift_close_' . $day;
           $message = t('!day - First shift close is required.', array('!day' => $days[$day]));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
         elseif ($int_first_shift_open >= $int_first_shift_close) {
           $field = 'day_' . $day . '][first_shift_close_' . $day;
           $message = t('!day - First shift close must be later than first shift open.', array('!day' => $days[$day]));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
       }
       // Second shift.
@@ -575,27 +592,27 @@ function room_reservations_admin_settings_default_hours_validate($form_id, &$for
         if (($int_first_shift_open == 9999) && ($int_first_shift_close == 9999)) {
           $field = 'day_' . $day . '][second_shift_open_' . $day;
           $message = t('!day - Cannot have a second shift without a first shift.', array('!day' => $days[$day]));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
         elseif ($int_second_shift_open == 9999) {
           $field = 'day_' . $day . '][second_shift_open_' . $day;
           $message = t('!day - Second shift open is missing.', array('!day' => $days[$day]));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
         elseif ($int_second_shift_close == 9999) {
           $field = 'day_' . $day . '][second_shift_close_' . $day;
           $message = t('!day - Second shift close is missing.', array('!day' => $days[$day]));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
         elseif ($int_second_shift_open <= $int_first_shift_close) {
           $field = 'day_' . $day . '][second_shift_open_' . $day;
           $message = t('!day - Second shift open must be later than first shift close.', array('!day' => $days[$day]));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
         elseif ($int_second_shift_open >= $int_second_shift_close) {
           $field = 'day_' . $day . '][second_shift_close_' . $day;
           $message = t('!day - Second shift close must be later than second shift opten.', array('!day' => $days[$day]));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
       }
     }
@@ -674,10 +691,10 @@ function room_reservations_admin_settings_default_hours_submit($form_id, &$form_
     }
   }
   if ($errors) {
-    drupal_set_message(check_plain($error), 'error');
+    drupal_set_message($error, 'error');
   }
   else {
-    drupal_set_message(check_plain($confirmation));
+    drupal_set_message($confirmation);
   }
 }
 
@@ -854,17 +871,17 @@ function room_reservations_admin_settings_daily_hours_validate($form_id, &$form_
         if ($int_first_shift_open == 9999) {
           $field = 'day_' . $day . '][first_shift_open_' . $day;
           $message = t('!day - First shift open is required.', array('!day' => $dom . ' ' . $dow));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
         elseif ($int_first_shift_close == 9999) {
           $field = 'day_' . $day . '][first_shift_close_' . $day;
           $message = t('!day - First shift close is required.', array('!day' => $dom . ' ' . $dow));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
         elseif ($int_first_shift_open >= $int_first_shift_close) {
           $field = 'day_' . $day . '][first_shift_close_' . $day;
           $message = t('!day - First shift close must be later than first shift open.', array('!day' => $dom . ' ' . $dow));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
       }
       // Second shift.
@@ -877,27 +894,27 @@ function room_reservations_admin_settings_daily_hours_validate($form_id, &$form_
         if (($int_first_shift_open == 9999) && ($int_first_shift_close == 9999)) {
           $field = 'day_' . $day . '][second_shift_open_' . $day;
           $message = t('!day - Cannot have a second shift without a first shift.', array('!day' => $dom . ' ' . $dow));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
         elseif ($int_second_shift_open == 9999) {
           $field = 'day_' . $day . '][second_shift_open_' . $day;
           $message = t('!day - Second shift open is missing.', array('!day' => $dom . ' ' . $dow));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
         elseif ($int_second_shift_close == 9999) {
           $field = 'day_' . $day . '][second_shift_close_' . $day;
           $message = t('!day - Second shift close is missing.', array('!day' => $dom . ' ' . $dow));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
         elseif ($int_second_shift_open <= $int_first_shift_close) {
           $field = 'day_' . $day . '][second_shift_open_' . $day;
           $message = t('!day - Second shift open must be later than first shift close.', array('!day' => $dom . ' ' . $dow));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
         elseif ($int_second_shift_open >= $int_second_shift_close) {
           $field = 'day_' . $day . '][second_shift_close_' . $day;
           $message = t('!day - Second shift close must be later than second shift opten.', array('!day' => $dom . ' ' . $dow));
-          form_set_error($field, check_plain($message));
+          form_set_error($field, $message);
         }
       }
     }
@@ -957,10 +974,10 @@ function room_reservations_admin_settings_daily_hours_submit($form_id, &$form_st
     }
     $result = _room_reservations_set_variable('monthly_hours_' . $month_value, serialize($updated_mo_hours));
     if ($result) {
-      drupal_set_message(check_plain($confirmation));
+      drupal_set_message($confirmation);
     }
     else {
-      drupal_set_message(check_plain($error), 'error');
+      drupal_set_message($error, 'error');
     }
   }
   // Reset the month to the default hours.
@@ -972,10 +989,10 @@ function room_reservations_admin_settings_daily_hours_submit($form_id, &$form_st
     $year = drupal_substr($month_value, 0, 4);
     $result = _room_reservations_create_mo_hours($year, $month, $month_value);
     if ($result) {
-      drupal_set_message(check_plain($confirmation));
+      drupal_set_message($confirmation);
     }
     else {
-      drupal_set_message(check_plain($error), 'error');
+      drupal_set_message($error, 'error');
     }
   }
 }
@@ -1079,10 +1096,10 @@ function room_reservations_admin_settings_page_submit($form_id, &$form_state) {
     $errors = TRUE;
   }
   if ($errors) {
-    drupal_set_message(check_plain($error), 'error');
+    drupal_set_message($error, 'error');
   }
   else {
-    drupal_set_message(check_plain($confirmation));
+    drupal_set_message($confirmation);
   }
 }
 
@@ -1172,10 +1189,10 @@ function room_reservations_admin_settings_sms_submit($form_id, &$form_state) {
     $errors = TRUE;
   }
   if ($errors) {
-    drupal_set_message(check_plain($error), 'error');
+    drupal_set_message($error, 'error');
   }
   else {
-    drupal_set_message(check_plain($confirmation));
+    drupal_set_message($confirmation);
   }
 }
 
@@ -1225,18 +1242,18 @@ function room_reservations_admin_settings_sms_add_validate($form_id, &$form_stat
     if (!$carrier) {
       $field = 'add_carrier][carrier';
       $message = t('Wireless carrier is required.');
-      form_set_error($field, check_plain($message));
+      form_set_error($field, $message);
     }
     if (!$domain) {
       $field = 'add_carrier][domain';
       $message = t('Domain name is required.');
-      form_set_error($field, check_plain($message));
+      form_set_error($field, $message);
     }
     else {
       if (drupal_substr($domain, 0, 1) != '@') {
         $field = 'add_carrier][domain';
         $message = t('Domain name must begin with @.');
-        form_set_error($field, check_plain($message));
+        form_set_error($field, $message);
       }
     }
     if (($carrier) && ($domain)) {
@@ -1333,7 +1350,7 @@ function room_reservations_admin_settings_sms_delete_validate($form_id, &$form_s
     if (!$carrier) {
       $field = 'delete_carrier][carrier';
       $message = t('Wireless carrier is required.');
-      form_set_error($field, check_plain($message));
+      form_set_error($field, $message);
     }
   }
 }
@@ -1494,7 +1511,7 @@ function room_reservations_admin_settings_email_validate($form_id, &$form_state)
     else {
       $field = 'from_address';
       $message = t('Invalid email address.');
-      form_set_error($field, check_plain($message));
+      form_set_error($field, $message);
     }
   }
 }
@@ -1560,10 +1577,10 @@ function room_reservations_admin_settings_email_submit($form_id, &$form_state) {
     $errors = TRUE;
   }
   if ($errors) {
-    drupal_set_message(check_plain($error), 'error');
+    drupal_set_message($error, 'error');
   }
   else {
-    drupal_set_message(check_plain($confirmation));
+    drupal_set_message($confirmation);
   }
 }
 
@@ -1689,7 +1706,7 @@ function room_reservations_admin_settings_text_validate($form_id, &$form_state) 
     else {
       $field = 'from_address';
       $message = t('Invalid email address.');
-      form_set_error($field, check_plain($message));
+      form_set_error($field, $message);
     }
   }
 }
@@ -1747,9 +1764,9 @@ function room_reservations_admin_settings_text_submit($form_id, &$form_state) {
     $errors = TRUE;
   }
   if ($errors) {
-    drupal_set_message(check_plain($error), 'error');
+    drupal_set_message($error, 'error');
   }
   else {
-    drupal_set_message(check_plain($confirmation));
+    drupal_set_message($confirmation);
   }
 }

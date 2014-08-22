@@ -134,7 +134,7 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
       $id = $data->nid;
       $time = $data->reservation_time['und'][0]['value'];;
       $rid = $data->reservation_room['und'][0]['target_id'];
-      $name = check_plain($data->title);
+      $name = $data->title;
       $user_name = $data->name;
       $reservations[$rid][$time]['booked'] = TRUE;
       $reservations[$rid][$time]['name'] = $name;
@@ -207,7 +207,7 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
       $time = $data->time;
       $length = $data->length;
       $room_name = $data->room;
-      $name = check_plain($data->name);
+      $name = $data->name;
       $user_name = $data->user_name;
       $time_slots = $length / 30;
       $remainder = $length % 30;

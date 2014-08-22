@@ -28,7 +28,13 @@ Drupal.behaviors.room_reservations.attach = function(context) {
 
     // change calendar date displayed
     $('#edit-date-datepicker-popup-0').change(function() {
-      var val = $(this).attr('value').substring(5, end);
+      var datebits = $(this).attr('value').split('/');
+      var formatarr = Drupal.settings.room_reservations.dateformat.split('/');
+      var dateobj = new Object();
+      $.each(formatarr, function(index, value) {
+        dateobj[value] = datebits[index];
+      });
+      var val = dateobj.m + '/' + dateobj.d;
       var path = window.location.href;
       var loc = path.lastIndexOf('room_reservations');
       var end = loc + 17;
