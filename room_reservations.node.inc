@@ -131,8 +131,8 @@ function room_reservations_form($node, $form_state) {
  */
 function _room_reservations_installed_fields_room() {
   return array(
-    'room_category' => array(
-      'field_name' => 'room_category',
+    'reservations_room_category' => array(
+      'field_name' => 'reservations_room_category',
       'cardinality' => 1,
       'type'        => 'entityreference',
       'settings'    => array(
@@ -142,8 +142,8 @@ function _room_reservations_installed_fields_room() {
         'handler_settings' => array('target_bundles' => array('room_reservations_category')),
       ),
     ),
-    'room_capacity' => array(
-      'field_name' => 'room_capacity',
+    'reservations_room_capacity' => array(
+      'field_name' => 'reservations_room_capacity',
       'cardinality' => 1,
       'type'        => 'number_integer',
       'settings' => array(
@@ -155,23 +155,23 @@ function _room_reservations_installed_fields_room() {
 
 function _room_reservations_installed_instances_room() {
   return array(
-    'room_capacity' => array(
-      'field_name' => 'room_capacity',           
+    'reservations_room_capacity' => array(
+      'field_name' => 'reservations_room_capacity',           
       'required' => true,
       'label'       => t('Capacity'),
       'widget'      => array(
         'type'    => 'text_textfield',
       ),
     ),
-    'room_category' => array(
-      'field_name' => 'room_category',           
+    'reservations_room_category' => array(
+      'field_name' => 'reservations_room_category',           
       'required' => true,
       'label'       => t('Category'),
       'widget'      => array(
         'type'    => 'options_select',
       ),
     ),
-    'reservation_display_order' => array(
+    'reservations_display_order' => array(
       'bundle' => 'room_reservations_category',
       'default_value' => array(
         0 => array(
@@ -196,7 +196,7 @@ function _room_reservations_installed_instances_room() {
         ),
       ),
       'entity_type' => 'node',
-      'field_name' => 'reservation_display_order',
+      'field_name' => 'reservations_display_order',
       'label' => 'Display Order',
       'required' => TRUE,
       'settings' => array(
@@ -225,13 +225,13 @@ function _room_reservations_installed_instances_room() {
 function _room_reservations_installed_fields_category() {
   $field_bases = array();
   
-  // Exported field_base: 'reservation_display_order'
-  $field_bases['reservation_display_order'] = array(
+  // Exported field_base: 'reservations_display_order'
+  $field_bases['reservations_display_order'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'reservation_display_order',
+    'field_name' => 'reservations_display_order',
     'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
@@ -280,8 +280,8 @@ function _room_reservations_installed_fields_category() {
 function _room_reservations_installed_instances_category() {
   $field_instances = array();
   
-  // Exported field_instance: 'node-room_reservations_category-reservation_display_order'
-  $field_instances['node-room_reservations_category-reservation_display_order'] = array(
+  // Exported field_instance: 'node-room_reservations_category-reservations_display_order'
+  $field_instances['node-room_reservations_category-reservations_display_order'] = array(
     'bundle' => 'room_reservations_category',
     'default_value' => array(
       0 => array(
@@ -306,7 +306,7 @@ function _room_reservations_installed_instances_category() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'reservation_display_order',
+    'field_name' => 'reservations_display_order',
     'label' => 'Display Order',
     'required' => TRUE,
     'settings' => array(

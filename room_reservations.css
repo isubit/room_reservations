@@ -68,7 +68,7 @@
 }
 
 #rooms #tabbedPanels .date {
-  clear: all;
+  clear: both;
   margin: 0;
   text-align: center;
 }

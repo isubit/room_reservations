@@ -245,7 +245,7 @@ function theme_room_reservations($variables) {
       $rooms_per_category = 0;
       foreach ($rooms as $room) {
         $rid = $room['nid'];
-        if ($room['room_category']['und'][0]['target_id'] == $category['nid']) {
+        if ($room['reservations_room_category']['und'][0]['target_id'] == $category['nid']) {
           $rooms_per_category++;
         }
       }
@@ -264,10 +264,10 @@ function theme_room_reservations($variables) {
           $room_info = $room_link;
         }
         
-        if ($room['room_category']['und'][0]['target_id'] == $category['nid']) {
+        if ($room['reservations_room_category']['und'][0]['target_id'] == $category['nid']) {
           // Room name, capacity.
           $output .= '<div class="grid-column room-column"><ul><li class="room-info">' . $room_info . '</li>';
-          $output .= "<li class='room-info room-info-heading'>" . $room['room_capacity']['und'][0]['value'] . '</li>';
+          $output .= "<li class='room-info room-info-heading'>" . $room['reservations_room_capacity']['und'][0]['value'] . '</li>';
           // Populate each time slot.
           foreach ($hours as $time_slot) {
             $time = $time_slot['time'];
@@ -320,7 +320,7 @@ function theme_room_reservations($variables) {
           }
           $output .= '
             <li class="room-info">' . $room_info . '</li>
-            <li class="room-info">' . $room['room_capacity']['und'][0]['value'] . '</li>';
+            <li class="room-info">' . $room['reservations_room_capacity']['und'][0]['value'] . '</li>';
           $output .= '</ul></div>';
         }
       }
