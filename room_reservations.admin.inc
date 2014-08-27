@@ -111,7 +111,7 @@ function room_reservations_admin_settings($form, &$form_state) {
   
   $form['room_reservations_date_displays'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Date display formats'),
+    '#title' => t('Date and time display formats'),
     '#collapsible' => true,
     '#collapsed' => true,
   );
@@ -120,6 +120,14 @@ function room_reservations_admin_settings($form, &$form_state) {
     '#title' => t('Date format for the popup date picker to select calendar date.'),
     '#description' => t('Enter format in the form "y/m/d", "m/d/y", etc.'),
     '#default_value' => variable_get('room_reservations_picker_format', 'y/m/d'),
+  );  
+  $options = array(0 => '1:00 PM', 1 => '13:00');
+  $form['room_reservations_date_displays']['room_reservations_hour_format'] = array(
+    '#type' => 'radios',
+    '#title' => t('Hour format for the calendar display.'),
+    '#description' => t('Select either 2:00 PM or 14:00 display format.'),
+    '#default_value' => variable_get('room_reservations_hour_format', 0),
+    '#options' => $options,
   );
     
   

@@ -486,6 +486,12 @@ function _room_reservations_hours($option = NULL) {
     else {
       $display = $display_hour . ':' . $minutes . ' ' . $ampm;
     }
+    
+    // convert display to 24:00 format if required
+    if (variable_get('room_reservations_hour_format', 0)) {
+      $display = date('H:i', strtotime($display));
+    }
+    
     $class = ($y % 2) ? 'even' : 'odd';
     $hours_node_time = $display_hour . ':' . $minutes . $ampm;
     $hours_entry['time'] = $time;

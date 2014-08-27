@@ -269,7 +269,7 @@ function room_reservations_node_access($nodetype_or_node, $op, $account) {
         case 'create':
         case 'update':
         case 'delete':
-          return user_access('administer room reservations system');
+          return user_access('administer room reservations system') ? NODE_ACCESS_ALLOW : NODE_ACCESS_DENY;
       }
       break;
     
@@ -481,7 +481,7 @@ function return_to_reservations_page($form, &$form_state) {
   }
   
   // need to handle both update and delete case
-  $date = $form_state['values']['reservation_date']['und'][0]['value'] ? $form_state['values']['reservation_date']['und'][0]['value'] : $form['#node']->reservation_date['und'][0]['value'];
+  $date = $form['#node']->reservation_date['und'][0]['value'] ? $form['#node']->reservation_date['und'][0]['value'] : $form_state['values']['reservation_date']['und'][0]['value'];
   if ($date) {
     $return = date('n/d', strtotime($date));
     $form_state['redirect'] = 'room_reservations/' . $return;
