@@ -44,7 +44,8 @@ function room_reservations_admin_settings($form, &$form_state) {
     '240' => '240',    
     '360' => '360',
     '480' => '480',
-    '600' => '600',
+    '600' => '600',    
+    '720' => '720',
   );
   $form['room_reservations_title'] = array(
     '#title' => t('Application name'),
@@ -54,7 +55,6 @@ function room_reservations_admin_settings($form, &$form_state) {
     '#description' => t('The name of the room reservation application displayed on the menu, breadcrumbs, and heading of the reservation
        calendar page.'),
     '#default_value' => variable_get('room_reservations_title', 'Room Reservations'),
-    '#weight' => -100,
   );           
   $form['room_reservations_advance_standard'] = array(
     '#title' => t('Days in advance (standard)'),
@@ -62,7 +62,6 @@ function room_reservations_admin_settings($form, &$form_state) {
     '#options' => array(7 => 7, 14 => 14, 30 => 30, 60 => 60, 90 => 90), 
     '#description' => t('The number of days in advance that a reservation can be made by a standard user. Default is 14. Maximum is 90.'),
     '#default_value' => variable_get('room_reservations_advance_standard', 14),
-    '#weight' => -91,
   );
   $form['room_reservations_advance_extended'] = array(
     '#title' => t('Days in advance (extended)'),
@@ -70,7 +69,6 @@ function room_reservations_admin_settings($form, &$form_state) {
     '#options' => array(30 => 30, 60 => 60, 90 => 90, 180 => 180, 360 => 360), 
     '#description' => t('The number of days in advance that a reservation can be made by an admin. Default is 180.  Maximum is 360.'),
     '#default_value' => variable_get('room_reservations_advance_extended', 180),
-    '#weight' => -90,
   );
   $form['room_reservations_reservations_per_user'] = array(
     '#title' => t('Open reservations per user'),
@@ -80,7 +78,6 @@ function room_reservations_admin_settings($form, &$form_state) {
     '#description' => t('The maximum number of reservations that one particular user can have open at any time. Default is 4. Enter 0 to indicate
       that there is no maximum limit.'),
     '#default_value' => variable_get('room_reservations_reservations_per_user', 4),
-    '#weight' => -80,
   );
   $form['room_reservations_reservations_per_day'] = array(
     '#title' => t('Reservations per day'),
@@ -90,15 +87,20 @@ function room_reservations_admin_settings($form, &$form_state) {
     '#description' => t('The maximum number of reservations that one particular user can make for a single day.  Default is 1.  Enter 0 to indicate
       that there is no maximum limit.'),
     '#default_value' => variable_get('room_reservations_reservations_per_day', 1),
-    '#weight' => -70,
   );
-  $form['room_reservations_max_length'] = array(
-    '#title' => t('Maximum reservation length'),
+  $form['room_reservations_max_length_standard'] = array(
+    '#title' => t('Maximum reservation length (standard)'),
     '#type' => 'select',
     '#options' => $options,
-    '#default_value' => variable_get('room_reservations_max_length', 120),
-    '#description' => t('The maximum amount of time, in minutes, for which a room can be reserved. Default is 120.'),
-    '#weight' => -60,
+    '#default_value' => variable_get('room_reservations_max_length_standard', 120),
+    '#description' => t('The maximum amount of time, in minutes, for which a room can be reserved by a standard user. Default is 120.'),
+  );  
+  $form['room_reservations_max_length_extended'] = array(
+    '#title' => t('Maximum reservation length (extended)'),
+    '#type' => 'select',
+    '#options' => $options,
+    '#default_value' => variable_get('room_reservations_max_length_extended', 120),
+    '#description' => t('The maximum amount of time, in minutes, for which a room can be reserved by an admin. Default is 120.'),
   );
   $form['room_reservations_end_early'] = array(
     '#title' => t('End reservations 15 minutes before closing time.'),
@@ -106,7 +108,30 @@ function room_reservations_admin_settings($form, &$form_state) {
     '#return_value' => 1,
     '#default_value' => variable_get('room_reservations_end_early', 0),
     '#description' => t('All reservations end 15 minutes before closing time.'),
-    '#weight' => -50,
+  );  
+  $form['room_reservations_before_after_hours'] = array(
+    '#title' => t('Time to show on calendar before/after open slots'),
+    '#type' => 'select',
+    '#options' => array(0 => '0 hours', 1 => t('1 hour'), 2 => t('2 hours'), '3' => t('All day')),
+    '#default_value' => variable_get('room_reservations_before_after_hours', 3),
+    '#description' => t('The number of hours before the first open slot ofr the day and after the last open slot for the day that are shown on the calendar. 
+      Selecting 0 will show entire day. Default is to display all day.'),
+  );
+  $form['room_reservations_calendar_flipped'] = array(
+    '#title' => t('Flip orientation of calendar display.'),
+    '#type' => 'checkbox',
+    '#return_value' => 1,
+    '#default_value' => variable_get('room_reservations_calendar_flipped', 0),
+    '#description' => t('The default orientation of the calendar display has rooms listed along the top and hours along the left side. Selecting this checkbox will
+      flip this to display hours along the top and the rooms listed along the left side. This can be useful for categories with a very large number of rooms. NOTE:
+      custom CSS will most likely be required to allow all the hour slots to fit the width of your theme.'),
+  );   
+  $form['room_reservations_compressed_labels'] = array(
+    '#title' => t('Use smaller labels on calendar display.'),
+    '#type' => 'checkbox',
+    '#return_value' => 1,
+    '#default_value' => variable_get('room_reservations_compressed_labels', 0),
+    '#description' => t('The default display shows the room title and room capacity on both sides of the calendar display. Selecting this option shows only the room title on one side.'),
   );
   
   $form['room_reservations_date_displays'] = array(
@@ -378,77 +403,6 @@ function room_reservations_admin_settings_reminders_validate($form_id, &$form_st
       $message = t("'Send reminder daily at' time cannot be earlier than 'Send reminders for reservations created before' time.");
       form_set_error($field, $message);
     }
-  }
-}
-
-/**
- * Form constructor for the Settings / Mobile config page.
- */
-function room_reservations_admin_settings_mobile($form, &$form_state) {
-  $default_mobile_url = _room_reservations_get_variable('mobile_url');
-  $default_main_database = _room_reservations_get_variable('main_database');
-  $form['mobile_url'] = array(
-    '#title' => t('Mobile site url'),
-    '#type' => 'textfield',
-    '#description' => t('Display the mobile version of Room Reservations for this url.'),
-    '#default_value' => $default_mobile_url,
-    '#maxlength' => 80,
-    '#size' => 80,
-    '#weight' => -90,
-  );
-  $form['main_database'] = array(
-    '#title' => t('Main site database name'),
-    '#type' => 'textfield',
-    '#description' => t('Enter the name of the database used by your main (non-mobile) website.'),
-    '#default_value' => $default_main_database,
-    '#maxlength' => 80,
-    '#size' => 80,
-    '#weight' => -80,
-  );
-  $form['save'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save configuration'),
-    '#weight' => 100,
-  );
-  $form['reset'] = array(
-    '#type' => 'submit',
-    '#value' => t('Reset to defaults'),
-    '#weight' => 101,
-  );
-
-  return $form;
-}
-
-/**
- * Form submission for the Settings / Mobile config page.
- */
-function room_reservations_admin_settings_mobile_submit($form_id, &$form_state) {
-  if ($form_state['clicked_button']['#value'] == t('Save configuration')) {
-    $mobile_url = trim($form_state['values']['mobile_url']);
-    $main_database = trim($form_state['values']['main_database']);
-    $confirmation = ROOM_RESERVATIONS_SAVE_CONFIRMATION_MSG;
-    $error = ROOM_RESERVATIONS_SAVE_ERROR_MSG;
-  }
-  elseif ($form_state['clicked_button']['#value'] == t('Reset to defaults')) {
-    $mobile_url = '';
-    $main_database = '';
-    $confirmation = ROOM_RESERVATIONS_RESET_CONFIRMATION_MSG;
-    $error = ROOM_RESERVATIONS_RESET_ERROR_MSG;
-  }
-  $errors = FALSE;
-  $result = _room_reservations_set_variable('mobile_url', $mobile_url);
-  if (!$result) {
-    $errors = TRUE;
-  }
-  $result = _room_reservations_set_variable('main_database', $main_database);
-  if (!$result) {
-    $errors = TRUE;
-  }
-  if ($errors) {
-    drupal_set_message($error, 'error');
-  }
-  else {
-    drupal_set_message($confirmation);
   }
 }
 

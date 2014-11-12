@@ -77,15 +77,24 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
     }
     
     // if not open ALL day let's limit display to start just before first open shift (or 2nd if only one used)
-    if (!$open_24 && $int_first_shift_open < 9999 && ($hours[$x]['time'] < $int_first_shift_open - 200)) {
+    $buffer = variable_get('room_reservations_before_after_hours', 3) * 100;
+    if (!$open_24 && $buffer != 300 && $int_first_shift_open < 9999 && ($hours[$x]['time'] < $int_first_shift_open - $buffer)) {
       unset($hours[$x]);
     }
-    elseif (!$open_24 && $int_second_shift_open < 9999 && ($hours[$x]['time'] < $int_second_shift_open - 200)) {
+    elseif (!$open_24 && buffer != 300 && $int_second_shift_open < 9999 && ($hours[$x]['time'] < $int_second_shift_open - $buffer)) {
       unset($hours[$x]);
     }
     else {
       $hours[$x] = $time_slot;
     }
+    // and do the same for closing
+    if (!$open_24 && $buffer != 300 && $int_second_shift_close < 9999 && ($hours[$x]['time'] >= $int_second_shift_close + $buffer)) {
+      unset($hours[$x]);
+    }
+    elseif (!$open_24 && buffer != 300 && $int_first_shift_close < 9999 && ($hours[$x]['time'] >= $int_first_shift_close + $buffer)) {
+      unset($hours[$x]);
+    }
+    
     $x++;
   }
   $all_hours = _room_reservations_hours();
@@ -112,15 +121,6 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
     }
   }
   
-  // Get all room_reservation records for the selected day.
-  // Build the $reservations array that will be used for displaying the
-  // information in a calendar style grid.
-  $mobile_db = _room_reservations_detect_mobile_db();
-  if ($mobile_db) {
-    $mainsite = trim(_room_reservations_get_variable('main_database'));
-    db_set_active($mainsite);
-  }
-  
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', 'room_reservations_reservation')
@@ -139,12 +139,13 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
       $reservations[$rid][$time]['booked'] = TRUE;
       $reservations[$rid][$time]['name'] = $name;
       $reservations[$rid][$time]['user_name'] = $user_name;
-      $reservations[$rid][$time]['id'] = $id;
+      $reservations[$rid][$time]['id'] = $id; 
+      $reservations[$rid][$time]['series_id'] = $data->reservation_series_id['und'][0]['value'];
       $reservations[$rid][$time]['user'] = $data->uid;
       $reservations[$rid][$time]['blocked'] = $data->reservation_block_title['und'][0]['value'];
-      
       $length = $data->reservation_length['und'][0]['value'];;
       $time_slots = $length / 30;
+      $reservations[$rid][$time]['slots'] = $time_slots;
       $remainder = $length % 30;
       if ($remainder > 1) {
         $time_slots++;
@@ -159,15 +160,12 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
       }
     }
   }
-  if ($mobile_db) {
-    db_set_active('default');
-  }
-  
+    
   // Get any room_reservation records for the previous day
   // that might carry over into the selected day.
   // Continue to update the $reservation array with that information.
   $previous_day = date('Y-m-d', strtotime("$yyyymmdd -1 days"));
-  $max_length = variable_get('room_reservations_max_length', 120);
+  $max_length = user_access('create room reservations extended length') ? variable_get('room_reservations_max_length_extended', 120) : variable_get('room_reservations_max_length_standard', 120);
   $lhours = _room_reservations_hours();
   $rhours = array_reverse($lhours);
   $slots = ($max_length / 30) - 1;
@@ -187,10 +185,6 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
     $search_times[$j] = $hour['time'];
   }
   $late_times = array_reverse($late_times);
-  if ($mobile_db) {
-    $mainsite = trim(_room_reservations_get_variable('main_database'));
-    db_set_active($mainsite);
-  }
   
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
@@ -233,9 +227,6 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
         $carry_over_time_slots--;
       }
     }
-  }
-  if ($mobile_db) {
-    db_set_active('default');
   }
   $user_reservations = _room_reservations_user_reservations();
   $output .= theme('room_reservations', array(

@@ -432,6 +432,7 @@ function _room_reservations_installed_fields_reservation() {
         510 => '8.5 hours',        
         540 => '9 hours',
         600 => '10 hours',
+        720 => '12 nours',
       ),
     ),
     'translatable' => 0,

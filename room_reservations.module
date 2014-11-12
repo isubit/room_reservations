@@ -47,34 +47,6 @@ function room_reservations_menu() {
     'access arguments' => array('administer room reservations system'),
     'weight' => 10,
   );
-  /*$items['admin/config/system/room_reservations/settings/email'] = array(
-    'title' => 'Default Email Address',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('room_reservations_admin_settings_default_email'),
-    'access arguments' => array('administer room reservations system'),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'room_reservations.admin.inc',
-    'weight' => 20,
-  );
-  $items['admin/config/system/room_reservations/settings/reminders'] = array(
-    'title' => 'Reminders',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('room_reservations_admin_settings_reminders'),
-    'access arguments' => array('administer room reservations system'),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'room_reservations.admin.inc',
-    'weight' => 30,
-  );
-  $items['admin/config/system/room_reservations/settings/mobile'] = array(
-    'title' => 'Mobile',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('room_reservations_admin_settings_mobile'),
-    'access arguments' => array('administer room reservations system'),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'room_reservations.admin.inc',
-    'weight' => 40,
-  );
-  */
   $items['admin/config/system/room_reservations/hours'] = array(
     'title' => 'Hours',
     'page callback' => 'drupal_get_form',
@@ -236,14 +208,26 @@ function room_reservations_permission() {
     'administer room reservations system' => array(
       'title' => t('Administer the room reservations system'),
       'description' => t('Allows administration of room categories, rooms and reservations. Allows administering all system configuration settings.'),
+    ),    
+    'edit any room reservation' => array(
+      'title' => t('Edit any room reservation'),
+      'description' => t('Allows editing of all room reservations in the system.'),
+    ),    
+    'delete any room reservation' => array(
+      'title' => t('Delete any room reservation'),
+      'description' => t('Allows deleting of any room reservation in the system.'),
     ),
     'create room reservations standard' => array(
-      'title' => t('Create room reservations as well as edit or cancel your own reservations. Book in advance standard limit'),
+      'title' => t('Create room reservations as well as edit or cancel your own reservations. Book in advance standard limit.'),
       'description' => t('Create room reservations as well as edit or cancel your own reservations'),
     ),                
     'create room reservations extended' => array(
-      'title' => t('Create room reservations as well as edit or cancel your own reservations. Book in advance extended limit'),
+      'title' => t('Create room reservations as well as edit or cancel your own reservations. Book in advance extended limit.'),
       'description' => t('Create room reservations as well as edit or cancel your own reservations'),
+    ),   
+    'create room reservations extended length' => array(
+      'title' => t('Create extended maximum length room reservations.'),
+      'description' => t('Create extended length reservations.'),
     ),
     'view room reservations calendar' => array(
       'title' => t('View the room reservations calendar'),
@@ -274,14 +258,29 @@ function room_reservations_node_access($nodetype_or_node, $op, $account) {
       break;
     
     case 'room_reservations_reservation':
-      switch ($op) {
-        case 'create':
-        case 'update':
-        case 'delete':
-          return (user_access('create room reservations standard') || user_access('create room reservations extended') 
-            || user_access('administer room reservations system')) ? NODE_ACCESS_ALLOW : NODE_ACCESS_DENY;
-        case 'view':
-          return user_access('administer room reservations system') ? NODE_ACCESS_ALLOW : NODE_ACCESS_DENY;
+      global $user;
+      if ((is_object($nodetype_or_node) && $nodetype_or_node->uid == $user->uid)) {
+        switch ($op) {
+          case 'update':
+            return NODE_ACCESS_ALLOW;
+          case 'delete':
+            return NODE_ACCESS_ALLOWY;
+          case 'view':
+            return user_access('administer room reservations system') ? NODE_ACCESS_ALLOW : NODE_ACCESS_DENY;
+        }
+      }
+      else {
+        switch ($op) {
+          case 'create':
+            return (user_access('create room reservations standard') || user_access('create room reservations extended') 
+              || user_access('administer room reservations system')) ? NODE_ACCESS_ALLOW : NODE_ACCESS_DENY;
+          case 'update':
+            return (user_access('administer room reservations system') || user_access('edit any room reservation')) ? NODE_ACCESS_ALLOW : NODE_ACCESS_DENY;
+          case 'delete':
+            return (user_access('administer room reservations system') || user_access('delete any room reservation')) ? NODE_ACCESS_ALLOW : NODE_ACCESS_DENY;
+          case 'view':
+            return user_access('administer room reservations system') ? NODE_ACCESS_ALLOW : NODE_ACCESS_DENY;
+        }
       }
       break;
   }
@@ -313,6 +312,10 @@ function room_reservations_form_user_admin_permissions_alter(&$form, &$form_stat
 function room_reservations_form_room_reservations_reservation_node_form_alter(&$form, &$form_state, $form_id) {
   // params either passed in on url -  CREATE
   // or pulled from node - EDIT
+  
+  if (user_access('administer site configuration') && $_GET['edit'] == 'standard') {
+    return;
+  }
     
   // EDIT
   if ($nid = $form['nid']['#value']) {
@@ -324,7 +327,11 @@ function room_reservations_form_room_reservations_reservation_node_form_alter(&$
   }
   
   // CREATE NEW
-  else {
+  else {    
+    // if no parameters passed; lets redirect to calendar page
+    if (!arg(3) && !arg(4)) {
+      drupal_goto('room_reservations');
+    }
     // determine if this year or next year
     $yearnow = date('Y');
     $absdaynow = date('z');

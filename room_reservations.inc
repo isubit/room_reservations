@@ -200,11 +200,6 @@ class Reservation {
    *   if the record already exists.
    */
   public function __construct($id = NULL) {
-    $mobile_db = _room_reservations_detect_mobile_db();
-    if ($mobile_db) {
-      $mainsite = trim(_room_reservations_get_variable('main_database'));
-      db_set_active($mainsite);
-    }
     if ($id) {
       $sql = "SELECT * FROM {room_reservations} WHERE id = :id AND deleted = 'N'";
       $record_count = 0;
@@ -224,9 +219,6 @@ class Reservation {
         $this->phone = $data->phone;
         $record_count++;
       }
-    }
-    if ($mobile_db) {
-      db_set_active('default');
     }
   }
 }
@@ -476,12 +468,12 @@ function _room_reservations_hours($option = NULL) {
     }
     $minutes = ($y % 2) ? '30' : '00';
     $time = $hour . $minutes;
-    $ampm = ($y < 24) ? 'AM' : 'PM';
+    $ampm = ($y < 24) ? t('AM') : t('PM');
     if ($y == 0) {
-      $display = 'Midnight';
+      $display = t('Midnight');
     }
     elseif ($y == 24) {
-      $display = 'Noon';
+      $display = t('Noon');
     }
     else {
       $display = $display_hour . ':' . $minutes . ' ' . $ampm;
@@ -509,7 +501,7 @@ function _room_reservations_hours($option = NULL) {
   // Only return time slots that are greater than the current time minus
   // the maximum reservation length.
   if ($option == 'limited') {
-    $max_length = variable_get('room_reservations_max_length', 120);
+    $max_length = user_access('create room reservations extended length') ? variable_get('room_reservations_max_length_extended', 120) : variable_get('room_reservations_max_length_standard', 120);
     $margin_time = ($max_length / 60) * 100;
     if ($max_length % 60) {
       $margin_time += 30;
@@ -894,7 +886,7 @@ function _room_reservations_start_conflicts($room, $yyyymmdd, $time) {
   // Since reservations are limited to 2 hours, we are interested in times that
   // are less than or equal to the reservation time and greater than or equal
   // to 90 minutes before the reservation time.
-  $max_length = variable_get('room_reservations_max_length', 120);
+      $max_length = user_access('create room reservations extended length') ? variable_get('room_reservations_max_length_extended', 120) : variable_get('room_reservations_max_length_standard', 120);
   $max_slots = $max_length / 30;
   $search_items = array();
   for ($x = 0; $x < 8; $x++) {
@@ -926,14 +918,8 @@ function _room_reservations_start_conflicts($room, $yyyymmdd, $time) {
     $search_items[] = $search_item;
     $time_slot = array_pop($hours);
   }
-  $mobile_db = _room_reservations_detect_mobile_db();
-  if ($mobile_db) {
-    $mainsite = trim(_room_reservations_get_variable('main_database'));
-    db_set_active($mainsite);
-  }
   $sql = "
-    SELECT id
-    FROM {room_reservations}
+    SELECT id FROM {room_reservations}
     WHERE (
     (deleted = 'N' AND room = :room AND date = :date0 AND	time = :time0 AND length > :length0)
     OR
@@ -964,9 +950,6 @@ function _room_reservations_start_conflicts($room, $yyyymmdd, $time) {
     ':date6' => $search_items[6]['date'], ':time6' => $search_items[6]['start_time'], ':length6' => $search_items[6]['length'],
     ':date7' => $search_items[7]['date'], ':time7' => $search_items[7]['start_time'], ':length7' => $search_items[7]['length'])
   )->rowCount();
-  if ($mobile_db) {
-    db_set_active('default');
-  }
   return $conflicts_found;
 }
 
@@ -1000,7 +983,7 @@ function _room_reservations_start_conflicts($room, $yyyymmdd, $time) {
  *   reservation being made.
  */
 function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $all = FALSE) {
-  $max_length = variable_get('room_reservations_max_length', 120);
+  $max_length = user_access('create room reservations extended length') ? variable_get('room_reservations_max_length_extended', 120) : variable_get('room_reservations_max_length_standard', 120);
   $max_slots = $max_length / 30;
   $valid_lengths = array();
   for ($x = 30; $x <= $max_length; $x += 30) {
@@ -1056,11 +1039,6 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
   // another reservtion.  If so, set is_valid for that length to FALSE.
   // The first time slot has already been validated and does not need to be
   // checked again.
-  $mobile_db = _room_reservations_detect_mobile_db();
-  if ($mobile_db) {
-    $mainsite = trim(_room_reservations_get_variable('main_database'));
-    db_set_active($mainsite);
-  }
   if ($all) {
     $start = 0;
   }
@@ -1089,9 +1067,6 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
         }
       }
     }
-  }
-  if ($mobile_db) {
-    db_set_active('default');
   }
 
   // Determine if the reservation at each possible length would conflict with
@@ -1190,23 +1165,9 @@ function _room_reservations_daily_max_exceeded($yyyymmdd) {
   }
   global $user;
   $record_count = 0;
-  $mobile_db = _room_reservations_detect_mobile_db();
-  if ($mobile_db) {
-    $mainsite = trim(_room_reservations_get_variable('main_database'));
-    db_set_active($mainsite);
-  }
   if ($user->uid) {
-    $sql = "
-      SELECT id
-      FROM {room_reservations}
-      WHERE user_name = :name
-      AND date = :date
-      AND deleted = 'N'
-    ";
+    $sql = "SELECT id FROM {room_reservations} WHERE user_name = :name AND date = :date AND deleted = 'N'";
     $record_count = db_query($sql, array(':name' => $user->name, ':date' => $yyyymmdd))->rowCount();
-  }
-  if ($mobile_db) {
-    db_set_active('default');
   }
   if ($record_count < $max) {
     return FALSE;
@@ -1260,11 +1221,6 @@ function _room_reservations_user_reservations() {
   $user_reservations = array();
   $all_hours = _room_reservations_hours();
   global $user;
-  $mobile_db = _room_reservations_detect_mobile_db();
-  if ($mobile_db) {
-    $mainsite = trim(_room_reservations_get_variable('main_database'));
-    db_set_active($mainsite);
-  }
   if ($user->uid) {
     $earliest_date = date('Y-m-d', strtotime(date('Y-m-d')));
     $latest_date = date('Y-m-d', strtotime("now +13 days"));
@@ -1297,9 +1253,6 @@ function _room_reservations_user_reservations() {
       }
     }
   }
-  if ($mobile_db) {
-    db_set_active('default');
-  }
   return $user_reservations;
 }
 
@@ -1313,11 +1266,6 @@ function _room_reservations_user_reservations() {
  *   An array representing the carriers.
  */
 function _room_reservations_carriers() {
-  $mobile_db = _room_reservations_detect_mobile_db();
-  if ($mobile_db) {
-    $mainsite = trim(_room_reservations_get_variable('main_database'));
-    db_set_active($mainsite);
-  }
   $carriers = array();
   $sql = "SELECT * FROM {room_reservations_variables} WHERE name = 'carrier' ORDER BY value";
   $results = db_query($sql);
@@ -1325,9 +1273,6 @@ function _room_reservations_carriers() {
     $carrier = explode('~', $data->value);
     $id = $data->id;
     $carriers[$id] = check_plain($carrier[0]);
-  }
-  if ($mobile_db) {
-    db_set_active('default');
   }
   return $carriers;
 }
@@ -1345,11 +1290,6 @@ function _room_reservations_carriers() {
  *   The email address of the user's wireless carrier.
  */
 function _room_reservations_carrier_address($carrier) {
-  $mobile_db = _room_reservations_detect_mobile_db();
-  if ($mobile_db) {
-    $mainsite = trim(_room_reservations_get_variable('main_database'));
-    db_set_active($mainsite);
-  }
   $carrier_address = '';
   $sql = "SELECT * FROM {room_reservations_variables} WHERE name = 'carrier' ORDER BY id";
   $results = db_query($sql);
@@ -1360,9 +1300,6 @@ function _room_reservations_carrier_address($carrier) {
       $carrier_address = check_plain($car[1]);
       break;
     }
-  }
-  if ($mobile_db) {
-    db_set_active('default');
   }
   return $carrier_address;
 }
@@ -1528,42 +1465,6 @@ function _room_reservations_delete_variable($key) {
     return $result;
   }
   return FALSE;
-}
-
-/**
- * Determine if the current user is accessing the mobile site.
- */
-function _room_reservations_detect_mobile() {
-  global $base_url;
-  $url = explode('://', $base_url);
-  $mobile_url = trim(_room_reservations_get_variable('mobile_url'));
-  if ($url[1] == $mobile_url) {
-    return TRUE;
-  }
-  else {
-    return FALSE;
-  }
-}
-
-/**
- * Is user accessing the mobile site and does it use a separate database.
- */
-function _room_reservations_detect_mobile_db() {
-  global $base_url;
-  $url = explode('://', $base_url);
-  $mobile_url = trim(_room_reservations_get_variable('mobile_url'));
-  if ($url[1] == $mobile_url) {
-    $main_database = _room_reservations_get_variable('main_database');
-    if ($main_database) {
-      return TRUE;
-    }
-    else {
-      return FALSE;
-    }
-  }
-  else {
-    return FALSE;
-  }
 }
 
 function _room_reservations_is_slot_free($rid, $yyyymmdd, $time, $length) {
