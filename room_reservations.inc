@@ -470,10 +470,11 @@ function _room_reservations_hours($option = NULL) {
     $time = $hour . $minutes;
     $ampm = ($y < 24) ? t('AM') : t('PM');
     if ($y == 0) {
-      $display = t('Midnight');
+      // these shouldn't be wrapped in t() since we are just about to do a date() with them anyway
+      $display = 'Midnight';
     }
     elseif ($y == 24) {
-      $display = t('Noon');
+      $display = 'Noon';
     }
     else {
       $display = $display_hour . ':' . $minutes . ' ' . $ampm;
