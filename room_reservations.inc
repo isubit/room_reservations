@@ -241,7 +241,7 @@ function _room_reservations_categories() {
     $cids = array_keys($result['node']);
     $cat_objs = node_load_multiple($cids);
     foreach ($cat_objs as $cat) {
-      $categories[] = (array) $cat;  
+      $categories[] = array('nid' => $cat->nid, 'title' => check_plain($cat->title));  
     }
   }
   return $categories;

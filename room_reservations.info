@@ -17,3 +17,10 @@ core = "7.x"
 project = "room_reservations"
 datestamp = "1400256228"
 
+
+; Information added by Drupal.org packaging script on 2014-12-09
+version = "7.x-1.0+7-dev"
+core = "7.x"
+project = "room_reservations"
+datestamp = "1418149382"
+
