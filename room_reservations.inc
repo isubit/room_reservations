@@ -235,6 +235,7 @@ function _room_reservations_categories() {
   $query->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', 'room_reservations_category')   
     // dangerous as this does more than Order By as it does not include records which do not have this field set
+    // so let's make sure the Order field is REQUIRED
     ->fieldOrderBy('reservations_display_order', 'value', 'ASC');
   $result = $query->execute();
   if (isset($result['node'])) {
@@ -1240,12 +1241,12 @@ function _room_reservations_user_reservations() {
       $results = entity_load('node', $result_nids);
       foreach ($results as $data) {
         $reservation = array();
-        $reservation['id'] = $data->id;
-        $unix_timestamp = strtotime($data->date);
+        $reservation['id'] = $data->nid;
+        $unix_timestamp = strtotime($data->reservation_date['und'][0]['value']);
         $reservation['date'] = date("l, n/j", $unix_timestamp);
         $reservation['time'] = '';
         foreach ($all_hours as $time_slot) {
-          if ($time_slot['time'] == $data->time) {
+          if ($time_slot['time'] == $data->reservation_time['und'][0]['value']) {
             $reservation['time'] = $time_slot['display'];
             break;
           }

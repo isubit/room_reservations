@@ -148,6 +148,7 @@ function _room_reservations_installed_fields_room() {
       'type'        => 'number_integer',
       'settings' => array(
         'default_widget' => 'text',
+        'max_length' => 255,
       ),
     ),
   );
@@ -161,6 +162,9 @@ function _room_reservations_installed_instances_room() {
       'label'       => t('Capacity'),
       'widget'      => array(
         'type'    => 'text_textfield',
+      ),
+      'settings' => array(
+        'text_processing' => 0,
       ),
     ),
     'reservations_room_category' => array(

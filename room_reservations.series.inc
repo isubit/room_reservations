@@ -15,7 +15,7 @@ function room_reservations_insert($node) {
   }
   
   // when we do a node_save below; it will hit this hook; so if this routine just did the save lets bail
-  if ($node->saved){
+  if (isset($node->saved)){
     return;
   }
   
@@ -28,6 +28,7 @@ function room_reservations_insert($node) {
   $rid = $node->reservation_room['und'][0]['target_id'];
   $day = date('l', strtotime($start));
   
+  $msg = '';
   switch ($rtype) {
     // no repeats
     case 1:
@@ -56,6 +57,7 @@ function room_reservations_insert($node) {
   // and must unset default date that we just used in hook_node_presave for the initial node
   unset($tmp->date_default);
   $date = $start;
+  $booked = array();
   while (strtotime($date) <= strtotime($back, strtotime($end))) {
     $date = date('Y-m-d', strtotime($skip, strtotime($date)));
     
@@ -90,12 +92,12 @@ function room_reservations_update($node) {
   }
   
   // when we do a node_save below; it will hit this hook; so if this routine just did the save lets bail
-  if ($node->saved){
+  if (isset($node->saved)){
     return;
   }
   
   // if not part of a Series or special single only url; do nothing
-  if (!($sid = $node->reservation_series_id['und'][0]['value']) || $_GET['single']) {
+  if (!($sid = $node->reservation_series_id['und'][0]['value']) || isset($_GET['single'])) {
     return;
   }
   
@@ -138,7 +140,6 @@ function room_reservations_update($node) {
   
   // lets spit out some useful msgs
   drupal_set_message(t('Your reservation series has been modified.'));
-  drupal_set_message($msg);
   if (count($deleted)) {
     $dates = '<br>' . implode('<br>', $deleted);
     drupal_set_message(t('The following dates were deleted from the series due to scheduling conflicts: !dates', array('!dates' => $dates)));

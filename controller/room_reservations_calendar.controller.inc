@@ -81,7 +81,7 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
     if (!$open_24 && $buffer != 300 && $int_first_shift_open < 9999 && ($hours[$x]['time'] < $int_first_shift_open - $buffer)) {
       unset($hours[$x]);
     }
-    elseif (!$open_24 && buffer != 300 && $int_second_shift_open < 9999 && ($hours[$x]['time'] < $int_second_shift_open - $buffer)) {
+    elseif (!$open_24 && $buffer != 300 && $int_second_shift_open < 9999 && ($hours[$x]['time'] < $int_second_shift_open - $buffer)) {
       unset($hours[$x]);
     }
     else {
@@ -91,7 +91,7 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
     if (!$open_24 && $buffer != 300 && $int_second_shift_close < 9999 && ($hours[$x]['time'] >= $int_second_shift_close + $buffer)) {
       unset($hours[$x]);
     }
-    elseif (!$open_24 && buffer != 300 && $int_first_shift_close < 9999 && ($hours[$x]['time'] >= $int_first_shift_close + $buffer)) {
+    elseif (!$open_24 && $buffer != 300 && $int_first_shift_close < 9999 && ($hours[$x]['time'] >= $int_first_shift_close + $buffer)) {
       unset($hours[$x]);
     }
     
@@ -140,7 +140,7 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
       $reservations[$rid][$time]['name'] = $name;
       $reservations[$rid][$time]['user_name'] = $user_name;
       $reservations[$rid][$time]['id'] = $id; 
-      $reservations[$rid][$time]['series_id'] = $data->reservation_series_id['und'][0]['value'];
+      $reservations[$rid][$time]['series_id'] = isset($data->reservation_series_id['und'][0]['value']) ? $data->reservation_series_id['und'][0]['value'] : '';
       $reservations[$rid][$time]['user'] = $data->uid;
       $reservations[$rid][$time]['blocked'] = $data->reservation_block_title['und'][0]['value'];
       $length = $data->reservation_length['und'][0]['value'];;
@@ -229,6 +229,7 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
     }
   }
   $user_reservations = _room_reservations_user_reservations();
+  $output = '';
   $output .= theme('room_reservations', array(
     'dates' => $dates,
     'categories' => $categories,

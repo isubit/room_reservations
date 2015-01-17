@@ -213,6 +213,8 @@ function theme_room_reservations($variables) {
             $booked_class = 'closed';
           }
           // The time slot can be reserved by the current user.
+          $viewable_class = '';
+          $widthclass = '';
           if ($booked_class == 'reservable' && 
             (user_access('create room reservations standard') || user_access('create room reservations extended') || user_access('administer room reservations system'))) {
             $link = l(
@@ -252,7 +254,8 @@ function theme_room_reservations($variables) {
             else {
               $link = $reservations[$rid][$time]['name'];
             }
-            $widthclass = $reservations[$rid][$time]['slots'] ? 'colspan' . $reservations[$rid][$time]['slots'] : '';
+            $slots = isset($reservations[$rid][$time]['slots']) ? $reservations[$rid][$time]['slots'] : '';
+            $widthclass = $slots ? 'colspan' . $reservations[$rid][$time]['slots'] : '';
           }
           
           // allow other modules to modify the $link

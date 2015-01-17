@@ -313,7 +313,7 @@ function room_reservations_form_room_reservations_reservation_node_form_alter(&$
   // params either passed in on url -  CREATE
   // or pulled from node - EDIT
   
-  if (user_access('administer site configuration') && $_GET['edit'] == 'standard') {
+  if (user_access('administer site configuration') && isset($_GET['edit']) && $_GET['edit'] == 'standard') {
     return;
   }
     
@@ -381,13 +381,16 @@ function room_reservations_form_room_reservations_reservation_node_form_alter(&$
   if ($nid) {
     $form['reservation_repeat_type']['#disabled'] = TRUE;
     $form['reservation_repeat_until']['#disabled'] = TRUE;
+    // not sur ewhy this was here; if req i dont think structure during edit is correct here
+    /*
     if ($form['reservation_repeat_type']['und'][0]['#value'] > 1) {
       $form['reservation_repeat_until']['und'][0]['#value'] = $form['reservation_repeat_until']['und'][0]['#default_value']['value'];
     }
+    */
     
     // form alter is hit in/out of form so we alter only in so we dont show msgs after form is submitted - !count($form_state['input'])
     if ($form['reservation_series_id']['und'][0]['value']['#default_value'] && !count($form_state['input'])) {
-      if ($_GET['single']) {
+      if (isset($_GET['single'])) {
         $series_link = l(t('Click here'), "node/$nid/edit");
         drupal_set_message(t('NOTE: you are editing a SINLGE day in a SERIES of reservations. Any changes made here will impact only the reservation  
           for this day. !link if you want to edit the entire series.', array('!link' => $series_link)), 'warning');  
@@ -401,7 +404,7 @@ function room_reservations_form_room_reservations_reservation_node_form_alter(&$
     
     // and then parts that have to be here on both passes
     if ($form['reservation_series_id']['und'][0]['value']['#default_value']) {
-       if ($_GET['single']) {
+       if (isset($_GET['single'])) {
         // relabel Delete to Cancel Reservation 
         $form['actions']['delete']['#value'] = t('Cancel Reservation for This Day');
       }
@@ -417,7 +420,7 @@ function room_reservations_form_room_reservations_reservation_node_form_alter(&$
       }     
     }
     
-    // and if not part of a series; let's just change DELETE button
+    // and if not part of a series; let's change DELETE button
     if (!$form['reservation_series_id']['und'][0]['value']['#default_value']) {
       $form['actions']['delete']['#value'] = t('Cancel Reservation');
     }
@@ -459,7 +462,7 @@ function room_reservations_form_node_delete_confirm_alter(&$form, &$form_state, 
 function room_reservations_node_presave($node) {
   switch ($node->type) {
     case 'room_reservations_reservation':
-      if ($node->date_default) {
+      if (isset($node->date_default)) {
         $node->reservation_date['und'][0]['value'] = $node->date_default;
       }
       break;
