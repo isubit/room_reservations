@@ -157,12 +157,15 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
         $next_time = $times[$key];
         $reservations[$rid][$next_time]['booked'] = TRUE;
         $x++;
+        // unclear how we handle wrapping a reservation to the next day; but reservation time slots can't go passed midnight; i.e. slot 47 
+        if ($key == 47) {
+          break;
+        }
       }
     }
   }
     
-  // Get any room_reservation records for the previous day
-  // that might carry over into the selected day.
+  // Get any room_reservation records for the previous day that might carry over into the selected day.
   // Continue to update the $reservation array with that information.
   $previous_day = date('Y-m-d', strtotime("$yyyymmdd -1 days"));
   $max_length = user_access('create room reservations extended length') ? variable_get('room_reservations_max_length_extended', 120) : variable_get('room_reservations_max_length_standard', 120);
@@ -197,12 +200,13 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
     $result_nids = array_keys($result['node']);
     $results = entity_load('node', $result_nids);
     foreach ($results as $data) {
-      $id = $data->id;
-      $time = $data->time;
-      $length = $data->length;
-      $room_name = $data->room;
-      $name = $data->name;
-      $user_name = $data->user_name;
+      $id = $data->nid;
+      $time = $data->reservation_time['und'][0]['value'];
+      $rid = $data->reservation_room['und'][0]['target_id'];
+      $length = $data->reservation_length['und'][0]['value'];
+      //$room_name = $data->room;
+      $name = $data->title;
+      $user_name = $data->name;
       $time_slots = $length / 30;
       $remainder = $length % 30;
       if ($remainder > 1) {

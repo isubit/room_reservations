@@ -233,7 +233,11 @@ function _room_reservations_categories() {
   $categories = array();
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'room_reservations_category')   
+    ->entityCondition('bundle', 'room_reservations_category') 
+    // this partially makes sense - do not show Categories which are unpublished
+    // issue will be that Rooms maybe be published with categories that aren't.. which will be a mess
+    //->propertyCondition('status', NODE_PUBLISHED)  
+    
     // dangerous as this does more than Order By as it does not include records which do not have this field set
     // so let's make sure the Order field is REQUIRED
     ->fieldOrderBy('reservations_display_order', 'value', 'ASC');
@@ -258,7 +262,8 @@ function _room_reservations_rooms() {
   $rooms = array();
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'room_reservations_room')   
+    ->entityCondition('bundle', 'room_reservations_room')  
+    ->propertyCondition('status', NODE_PUBLISHED) 
     // dangerous as this does more than Order By as it does not include records which do not have this field set
     ->fieldOrderBy('reservations_display_order', 'value', 'ASC');
   $result = $query->execute();
@@ -985,7 +990,9 @@ function _room_reservations_start_conflicts($room, $yyyymmdd, $time) {
  *   reservation being made.
  */
 function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $all = FALSE) {
-  $max_length = user_access('create room reservations extended length') ? variable_get('room_reservations_max_length_extended', 120) : variable_get('room_reservations_max_length_standard', 120);
+  $max_length = user_access('create room reservations extended length') 
+    ? variable_get('room_reservations_max_length_extended', 120) 
+    : variable_get('room_reservations_max_length_standard', 120);
   $max_slots = $max_length / 30;
   $valid_lengths = array();
   for ($x = 30; $x <= $max_length; $x += 30) {
@@ -994,8 +1001,7 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
       'is_valid' => TRUE,
     );
   }
-  // Divide the maximum reservation length into 30 minute time slots
-  // and determine the start date and time of each of these slots.
+  // Divide the maximum reservation length into 30 minute time slots and determine the start date and time of each of these slots.
   $search_items = array();
   // Time slots for the first day.
   $day = $yyyymmdd;
@@ -1037,16 +1043,15 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
     }
   }
   
-  // Determine if the reservation at each possible length would conflict with
-  // another reservtion.  If so, set is_valid for that length to FALSE.
-  // The first time slot has already been validated and does not need to be
-  // checked again.
+  // Determine if the reservation at each possible length would conflict with another reservtion.  If so, set is_valid for that length to FALSE.
+  // The first time slot has already been validated and does not need to be checked again.
   if ($all) {
     $start = 0;
   }
   else {
     $start = 1;
   }
+
   for ($x = $start; $x < $max_slots; $x++) {
     $valid_length = $valid_lengths[$x];
     if ($valid_length['is_valid']) {
@@ -1061,6 +1066,14 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
         ->fieldCondition('reservation_date', 'value', $date, '=')     
         ->fieldCondition('reservation_time', 'value', $start_time, '=')         
         ->fieldCondition('reservation_room', 'target_id', $rid, '=');
+      // if editing a reservation (series) we need to not include any of the reservations in current series
+      if (arg(2) == 'edit') {
+        $nid = arg(1);
+        $res = node_load($nid);
+        if (isset($res->reservation_series_id['und'][0]['value']) && $sid = $res->reservation_series_id['und'][0]['value']) {
+          $query->fieldCondition('reservation_series_id', 'value', $sid, '!=');
+        }
+      }     
       $result = $query->execute();
       if (isset($result['node'])) {
         $conflicts_found = true;

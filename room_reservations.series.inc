@@ -97,7 +97,7 @@ function room_reservations_update($node) {
   }
   
   // if not part of a Series or special single only url; do nothing
-  if (!($sid = $node->reservation_series_id['und'][0]['value']) || isset($_GET['single'])) {
+  if (!isset($node->reservation_series_id['und'][0]) || !($sid = $node->reservation_series_id['und'][0]['value']) || isset($_GET['single'])) {
     return;
   }
   
@@ -115,6 +115,7 @@ function room_reservations_update($node) {
     ->entityCondition('bundle', 'room_reservations_reservation')   
     ->fieldCondition('reservation_series_id', 'value', $sid, '=');     
   $result = $query->execute();
+  $deleted = array();
   if (isset($result['node'])) {
     $result_nids = array_keys($result['node']);
     $results = entity_load('node', $result_nids);
