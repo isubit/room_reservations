@@ -63,6 +63,7 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
   $int_second_shift_close = intval($building_hours_day['second_shift_close']);
   $open_24 = $building_hours_day['open_24_hours'];
   $x = 0;
+  $buffer = variable_get('room_reservations_before_after_hours', 3) * 100;
   foreach ($hours as $time_slot) {
     $int_time_slot_time = intval($time_slot['time']);
     if ($building_hours_day['open_24_hours']) {
@@ -77,24 +78,31 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
     }
     
     // if not open ALL day let's limit display to start just before first open shift (or 2nd if only one used)
-    $buffer = variable_get('room_reservations_before_after_hours', 3) * 100;
-    if (!$open_24 && $buffer != 300 && $int_first_shift_open < 9999 && ($hours[$x]['time'] < $int_first_shift_open - $buffer)) {
-      unset($hours[$x]);
-    }
-    elseif (!$open_24 && $buffer != 300 && $int_second_shift_open < 9999 && ($hours[$x]['time'] < $int_second_shift_open - $buffer)) {
-      unset($hours[$x]);
+    // this assume you must have 1st shift defined and possible 2nd (i.e. can't define only 2nd shift)
+    if (!$open_24 && $buffer != 300) {
+      if ($int_first_shift_open < 9999 && ($hours[$x]['time'] < $int_first_shift_open - $buffer)) {
+        unset($hours[$x]);
+      }
+      else {
+        $hours[$x] = $time_slot;
+      }
+      // and do the same for closing
+      if (isset($hours[$x])) {
+        if ($int_second_shift_close < 9999) {
+          if ($hours[$x]['time'] >= $int_second_shift_close + $buffer) {
+            unset($hours[$x]);
+          }
+        }
+        elseif ($int_first_shift_close < 9999) {
+          if ($hours[$x]['time'] >= $int_first_shift_close + $buffer) {
+            unset($hours[$x]);
+          }
+        }
+      }
     }
     else {
       $hours[$x] = $time_slot;
     }
-    // and do the same for closing
-    if (!$open_24 && $buffer != 300 && $int_second_shift_close < 9999 && ($hours[$x]['time'] >= $int_second_shift_close + $buffer)) {
-      unset($hours[$x]);
-    }
-    elseif (!$open_24 && $buffer != 300 && $int_first_shift_close < 9999 && ($hours[$x]['time'] >= $int_first_shift_close + $buffer)) {
-      unset($hours[$x]);
-    }
-    
     $x++;
   }
   $all_hours = _room_reservations_hours();

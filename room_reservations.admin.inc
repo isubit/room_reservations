@@ -666,7 +666,10 @@ function room_reservations_admin_settings_default_hours_submit($form_id, &$form_
 function room_reservations_admin_settings_daily_hours($form, &$form_state, $selected_month = NULL) {
   $cur_months = _room_reservations_current_months();
   
-  $selected_month = $form_state['input']['month'] ? $form_state['input']['month'] : $selected_month;
+  if (!$selected_month) {
+    $selected_month = date('Y_m');
+  }
+  $selected_month = isset($form_state['input']['month']) ? $form_state['input']['month'] : $selected_month;
   
   // create a form to pick a month.
   $month_options = array();
