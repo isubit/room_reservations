@@ -81,7 +81,7 @@ function room_reservations_insert($node) {
   drupal_set_message($msg);
   if (count($booked)) {
     $dates = '<br>' . implode('<br>', $booked);
-    drupal_set_message(t('The following dates were not booked due to scheduling conflicts: !dates', array('!dates' => $dates)));
+    drupal_set_message(t('The following dates were not booked due to scheduling conflicts: !dates', array('!dates' => $dates)), 'warning');
   }
 }
 
@@ -143,7 +143,7 @@ function room_reservations_update($node) {
   drupal_set_message(t('Your reservation series has been modified.'));
   if (count($deleted)) {
     $dates = '<br>' . implode('<br>', $deleted);
-    drupal_set_message(t('The following dates were deleted from the series due to scheduling conflicts: !dates', array('!dates' => $dates)));
+    drupal_set_message(t('The following dates were deleted from the series due to scheduling conflicts: !dates', array('!dates' => $dates)), 'warning');
   }  
 }
 

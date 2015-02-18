@@ -114,8 +114,7 @@ function room_reservations_admin_settings($form, &$form_state) {
     '#type' => 'select',
     '#options' => array(0 => '0 hours', 1 => t('1 hour'), 2 => t('2 hours'), '3' => t('All day')),
     '#default_value' => variable_get('room_reservations_before_after_hours', 3),
-    '#description' => t('The number of hours before the first open slot for the day and after the last open slot for the day that are shown on the calendar. 
-      Selecting 0 will show entire day. Default is to display all day.'),
+    '#description' => t('The number of hours before the first and last open slots for the day that are shown on the calendar. The default is to display the entire day.'),
   );
   $form['room_reservations_calendar_flipped'] = array(
     '#title' => t('Flip orientation of calendar display.'),

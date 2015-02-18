@@ -230,12 +230,74 @@ function _room_reservations_installed_fields_category() {
   $field_bases = array();
   
   // Exported field_base: 'reservations_display_order'
-  $field_bases['reservations_display_order'] = array(
+  $field_bases = array(
+    'reservations_display_order' => array(
+      'active' => 1,
+      'cardinality' => 1,
+      'deleted' => 0,
+      'entity_types' => array(),
+      'field_name' => 'reservations_display_order',
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'locked' => 0,
+      'module' => 'list',
+      'settings' => array(
+        'allowed_values' => array(
+          1 => 1,
+          2 => 2,
+          3 => 3,
+          4 => 4,
+          5 => 5,
+          6 => 6,
+          7 => 7,
+          8 => 8,
+          9 => 9,
+          10 => 10,
+          11 => 11,
+          12 => 12,
+          13 => 13,
+          14 => 14,
+          15 => 15,
+          16 => 16,
+          17 => 17,
+          18 => 18,
+          19 => 19,
+          20 => 20,
+          21 => 21,
+          22 => 22,
+          23 => 23,
+          24 => 24,
+          25 => 25,
+        ),
+        'allowed_values_function' => '',
+        'profile2_private' => FALSE,
+      ),
+      'translatable' => 0,
+      'type' => 'list_integer',
+    ),
+  
+    'reservations_minadvbooking' => array(
+      'field_name' => 'reservations_minadvbooking',
+      'cardinality' => 1,
+      'type'        => 'number_integer',
+      'settings' => array(
+        'default_widget' => 'text',
+        'max_length' => 255,
+      ),
+    ),    
+  );
+  
+    // Exported field_base: 'field_reservation_length'
+  $field_bases['reservations_prebuffer'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'reservations_display_order',
+    'field_name' => 'reservations_prebuffer',
     'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
@@ -246,46 +308,53 @@ function _room_reservations_installed_fields_category() {
     'module' => 'list',
     'settings' => array(
       'allowed_values' => array(
-        1 => 1,
-        2 => 2,
-        3 => 3,
-        4 => 4,
-        5 => 5,
-        6 => 6,
-        7 => 7,
-        8 => 8,
-        9 => 9,
-        10 => 10,
-        11 => 11,
-        12 => 12,
-        13 => 13,
-        14 => 14,
-        15 => 15,
-        16 => 16,
-        17 => 17,
-        18 => 18,
-        19 => 19,
-        20 => 20,
-        21 => 21,
-        22 => 22,
-        23 => 23,
-        24 => 24,
-        25 => 25,
+        0 => 'none',
+        30 => '30 minutes',
+        60 => '1 hour',
+        90 => '1.5 hours',
+        120 => '2 hours',
       ),
-      'allowed_values_function' => '',
-      'profile2_private' => FALSE,
     ),
     'translatable' => 0,
     'type' => 'list_integer',
   );
+  
+      // Exported field_base: 'field_reservation_length'
+  $field_bases['reservations_postbuffer'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'reservations_postbuffer',
+    'foreign keys' => array(),
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        0 => 'none',
+        30 => '30 minutes',
+        60 => '1 hour',
+        90 => '1.5 hours',
+        120 => '2 hours',
+      ),
+    ),
+    'translatable' => 0,
+    'type' => 'list_integer',
+  );
+
   return $field_bases;
 }
 
 function _room_reservations_installed_instances_category() {
   $field_instances = array();
   
-  // Exported field_instance: 'node-room_reservations_category-reservations_display_order'
-  $field_instances['node-room_reservations_category-reservations_display_order'] = array(
+  // Exported field_instance: 'reservations_display_order'
+  $field_instances['reservations_display_order'] = array(
     'bundle' => 'room_reservations_category',
     'default_value' => array(
       0 => array(
@@ -322,6 +391,83 @@ function _room_reservations_installed_instances_category() {
       'settings' => array(),
       'type' => 'options_select',
       'weight' => 1,
+    ),
+  );
+  
+  $field_instances['reservations_minadvbooking'] = array(
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
+    'field_name' => 'reservations_minadvbooking',           
+    'required' => true,
+    'label'       => 'Minimum Advance Booking',
+    'description' => 'Sets the minimum days in advance a room may be booked by a standard user.',
+    'widget'      => array(
+      'type'    => 'text_textfield',
+      'weight' => 1.1,
+    ),
+    'settings' => array(
+      'text_processing' => 0,
+    ),
+  ); 
+  
+  $field_instances['reservations_prebuffer'] = array(
+    'bundle' => 'room_reservations_category',
+    'default_value' => array(0 => array('value' => '0')),
+    'deleted' => 0,
+    'description' => 'Setup time required for reservations for all room in this category. This time will be added to each reservation to extend the reserved calendar time.',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'reservations_prebuffer',
+    'label' => 'Room setup buffer',
+    'required' => true,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(),
+      'type' => 'options_select',
+      'weight' => 1.2,
+    ),
+  ); 
+  
+  $field_instances['reservations_postbuffer'] = array(
+    'bundle' => 'room_reservations_category',
+    'default_value' => array(0 => array('value' => '0')),
+    'deleted' => 0,
+    'description' => 'Takedown time required for reservations for all rooms in this category. This time will be added to each reservation to extend the reserved calendar time.',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'reservations_postbuffer',
+    'label' => 'Room takedown buffer',
+    'required' => true,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(),
+      'type' => 'options_select',
+      'weight' => 1.3,
     ),
   );
 
@@ -420,8 +566,8 @@ function _room_reservations_installed_fields_reservation() {
         30 => '30 minutes',
         60 => '60 minutes',
         90 => '90 minutes',
-        120 => '120 minutes',
-        150 => '150 minutes',
+        120 => '2 hours',
+        150 => '2.5 hours',
         180 => '3 hours',        
         210 => '3.5 hours',
         240 => '4 hours',    
@@ -592,8 +738,8 @@ function _room_reservations_installed_fields_reservation() {
 function _room_reservations_installed_instances_reservation() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-room_reservations_reservation-field_block_title'
-  $field_instances['node-room_reservations_reservation-reservation_block_title'] = array(
+  // Exported field_instance: 'reservation_block_title'
+  $field_instances['reservation_block_title'] = array(
     'bundle' => 'room_reservations_reservation',
     'default_value' => array(
       0 => array(
@@ -635,7 +781,7 @@ function _room_reservations_installed_instances_reservation() {
   );
 
   // Exported field_instance: 'node-room_reservations_reservation-field_reservation_date'
-  $field_instances['node-room_reservations_reservation-reservation_date'] = array(
+  $field_instances['reservation_date'] = array(
     'bundle' => 'room_reservations_reservation',
     'deleted' => 0,
     'description' => '',
@@ -689,7 +835,7 @@ function _room_reservations_installed_instances_reservation() {
   );
 
   // Exported field_instance: 'node-room_reservations_reservation-field_reservation_length'
-  $field_instances['node-room_reservations_reservation-reservation_length'] = array(
+  $field_instances['reservation_length'] = array(
     'bundle' => 'room_reservations_reservation',
     'default_value' => NULL,
     'deleted' => 0,
@@ -712,7 +858,7 @@ function _room_reservations_installed_instances_reservation() {
     'entity_type' => 'node',
     'field_name' => 'reservation_length',
     'label' => 'Length',
-    'required' => 0,
+    'required' => true,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
@@ -726,7 +872,7 @@ function _room_reservations_installed_instances_reservation() {
   );
 
   // Exported field_instance: 'node-room_reservations_reservation-field_reservation_repeat_type'
-  $field_instances['node-room_reservations_reservation-reservation_repeat_type'] = array(
+  $field_instances['reservation_repeat_type'] = array(
     'bundle' => 'room_reservations_reservation',
     'default_value' => NULL,
     'deleted' => 0,
@@ -763,7 +909,7 @@ function _room_reservations_installed_instances_reservation() {
   );
 
   // Exported field_instance: 'node-room_reservations_reservation-field_reservation_repeat_until'
-  $field_instances['node-room_reservations_reservation-reservation_repeat_until'] = array(
+  $field_instances['reservation_repeat_until'] = array(
     'bundle' => 'room_reservations_reservation',
     'deleted' => 0,
     'description' => '',
@@ -817,7 +963,7 @@ function _room_reservations_installed_instances_reservation() {
   );
 
   // Exported field_instance: 'node-room_reservations_reservation-field_reservation_room'
-  $field_instances['node-room_reservations_reservation-reservation_room'] = array(
+  $field_instances['reservation-reservation_room'] = array(
     'bundle' => 'room_reservations_reservation',
     'default_value' => NULL,
     'deleted' => 0,
@@ -888,7 +1034,7 @@ function _room_reservations_installed_instances_reservation() {
   );
 
   // Exported field_instance: 'node-room_reservations_reservation-field_reservation_series_id'
-  $field_instances['node-room_reservations_reservation-reservation_series_id'] = array(
+  $field_instances['reservation_series_id'] = array(
     'bundle' => 'room_reservations_reservation',
     'default_value' => NULL,
     'deleted' => 0,
@@ -927,8 +1073,8 @@ function _room_reservations_installed_instances_reservation() {
     ),
   );
 
-  // Exported field_instance: 'node-room_reservations_reservation-field_reservation_time'
-  $field_instances['node-room_reservations_reservation-reservation_time'] = array(
+  // Exported field_instance: 'reservation_time'
+  $field_instances['reservation_time'] = array(
     'bundle' => 'room_reservations_reservation',
     'default_value' => NULL,
     'deleted' => 0,

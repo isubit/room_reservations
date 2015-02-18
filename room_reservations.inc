@@ -246,7 +246,13 @@ function _room_reservations_categories() {
     $cids = array_keys($result['node']);
     $cat_objs = node_load_multiple($cids);
     foreach ($cat_objs as $cat) {
-      $categories[] = array('nid' => $cat->nid, 'title' => check_plain($cat->title));  
+      $categories[$cat->nid] = array(
+        'nid' => $cat->nid,
+        'title' => check_plain($cat->title),
+        'advmin' => isset($cat->reservations_minadvbooking['und'][0]['value']) ? $cat->reservations_minadvbooking['und'][0]['value'] : 0,
+        'prebuffer' => $cat->reservations_prebuffer['und'][0]['value'],
+        'postbuffer' => $cat->reservations_postbuffer['und'][0]['value'],
+      );  
     }
   }
   return $categories;
@@ -271,7 +277,7 @@ function _room_reservations_rooms() {
     $rids = array_keys($result['node']);
     $room_objs = node_load_multiple($rids);
     foreach ($room_objs as $room) {
-      $rooms[] = (array) $room;  
+      $rooms[$room->nid] = (array) $room;  
     }
   }
   return $rooms;
@@ -386,6 +392,10 @@ function _room_reservations_create_mo_hours($year, $month, $yyyy_mm, $array = fa
  *
  * Create an array containing pertinent information about all the
  * possible days for which a reservation can be made.
+ * 
+ * 7.x-1.3 REV:
+ *  - start of adding features on a per Category basis
+ *  - for now let's just key this date's array by Cat ID
  *
  * @param int $selected_month
  *   The month of the day currently selected by the user
@@ -398,48 +408,53 @@ function _room_reservations_create_mo_hours($year, $month, $yyyy_mm, $array = fa
  *   date in the format YYYY-MM-DD, whether the day is currently selected by
  *   the user, and whether the day is today.
  */
-function _room_reservations_dates($selected_month = NULL, $selected_day = NULL) {
+function _room_reservations_dates($selected_month = NULL, $selected_day = NULL, $keyed = false) {
   // Determine date information (month, day, year, etc.) for each of these days.
+  $categories = _room_reservations_categories();
   $dates = array();
-  if (user_access('create room reservations extended')) {
-    $advancedays = variable_get('room_reservations_advance_extended', 180);
-  }
-  else {
-    $advancedays = variable_get('room_reservations_advance_standard', 14);
-  }
-  for ($j = 0; $j < $advancedays; $j++) {
-    $day = array();
-    $day['display'] = date("l, n/j", strtotime("now + " . $j . " days"));
-    $day['day-of-week'] = date("l", strtotime("now + " . $j . " days"));
-    $day['month'] = date("F", strtotime("now + " . $j . " days"));
-    $month_number = date("n", strtotime("now + " . $j . " days"));
-    $day['month-number'] = $month_number;
-    $sday = date("j", strtotime("now + " . $j . " days"));
-    $day['day'] = $sday;
-    $year = date("Y", strtotime("now + " . $j . " days"));
-    $day['year'] = $year;
-    // Determine the date selected by the user.  If none selected, default to
-    // the first day.
-    if (($j == 0) && (!$selected_month) && (!$selected_day)) {
-      $day['selected'] = TRUE;
+  foreach ($categories as $cat) {
+    $advancedaysmax = user_access('create room reservations extended') 
+      ? variable_get('room_reservations_advance_extended', 180) 
+      : variable_get('room_reservations_advance_standard', 14);
+    $advancedaysmin = user_access('bypass minimum advance booking') ? 0 : $cat['advmin'];
+    for ($j = $advancedaysmin; $j < $advancedaysmax; $j++) {
+      $day = array();
+      $day['display'] = date("l, n/j", strtotime("now + " . $j . " days"));
+      $day['day-of-week'] = date("l", strtotime("now + " . $j . " days"));
+      $day['month'] = date("F", strtotime("now + " . $j . " days"));
+      $month_number = date("n", strtotime("now + " . $j . " days"));
+      $day['month-number'] = $month_number;
+      $sday = date("j", strtotime("now + " . $j . " days"));
+      $day['day'] = $sday;
+      $year = date("Y", strtotime("now + " . $j . " days"));
+      $day['year'] = $year;
+      // Determine the date selected by the user.  If none selected, default to the first day.
+      if (($j == 0) && (!$selected_month) && (!$selected_day)) {
+        $day['selected'] = TRUE;
+      }
+      elseif (($selected_month == $month_number) && ($selected_day == $sday)) {
+        $day['selected'] = TRUE;
+      }
+      else {
+        $day['selected'] = FALSE;
+      }
+      // The date in YYYY-MM-DD format.
+      if ($month_number < 10) {
+        $month_number = str_pad($month_number, 2, '0', STR_PAD_LEFT);
+      }
+      if ($sday < 10) {
+        $sday = str_pad($sday, 2, '0', STR_PAD_LEFT);
+      }
+      $day['yyyymmdd'] = $year . "-" . $month_number . "-" . $sday;
+      $day['today'] = (($day['month-number'] == date('m')) &&
+        ($day['day'] == date('j'))) ? TRUE : FALSE;
+      if ($keyed) {
+        $dates[$cat['nid']][$day['yyyymmdd']] = $day;
+      }
+      else {
+        $dates[$cat['nid']][] = $day;
+      }
     }
-    elseif (($selected_month == $month_number) && ($selected_day == $sday)) {
-      $day['selected'] = TRUE;
-    }
-    else {
-      $day['selected'] = FALSE;
-    }
-    // The date in YYYY-MM-DD format.
-    if ($month_number < 10) {
-      $month_number = str_pad($month_number, 2, '0', STR_PAD_LEFT);
-    }
-    if ($sday < 10) {
-      $sday = str_pad($sday, 2, '0', STR_PAD_LEFT);
-    }
-    $day['yyyymmdd'] = $year . "-" . $month_number . "-" . $sday;
-    $day['today'] = (($day['month-number'] == date('m')) &&
-      ($day['day'] == date('j'))) ? TRUE : FALSE;
-    $dates[] = $day;
   }
   return $dates;
 }
@@ -508,7 +523,9 @@ function _room_reservations_hours($option = NULL) {
   // Only return time slots that are greater than the current time minus
   // the maximum reservation length.
   if ($option == 'limited') {
-    $max_length = user_access('create room reservations extended length') ? variable_get('room_reservations_max_length_extended', 120) : variable_get('room_reservations_max_length_standard', 120);
+    $max_length = user_access('create room reservations extended length') 
+      ? variable_get('room_reservations_max_length_extended', 120) 
+      : variable_get('room_reservations_max_length_standard', 120);
     $margin_time = ($max_length / 60) * 100;
     if ($max_length % 60) {
       $margin_time += 30;
@@ -1051,7 +1068,6 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
   else {
     $start = 1;
   }
-
   for ($x = $start; $x < $max_slots; $x++) {
     $valid_length = $valid_lengths[$x];
     if ($valid_length['is_valid']) {
@@ -1079,6 +1095,27 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
         $conflicts_found = true;
         for ($y = $x; $y < $max_slots; $y++) {
           $valid_lengths[$y]['is_valid'] = FALSE;
+        }
+      }
+    }
+  }
+  // need to limit these valid lengths by a prebuffer if it exists for the category this room is in
+  // but only if not permissions to do this
+  if (!user_access('book over buffer')) {
+    $categories = _room_reservations_categories();
+    $rooms = _room_reservations_rooms();
+    $category = $categories[$rooms[$rid]['reservations_room_category']['und'][0]['target_id']];
+    $preslots = $category['prebuffer'] / 30;
+    if ($preslots) {
+      foreach ($valid_lengths as $index => $length) {
+        if ($length['is_valid'] == false) {
+          $last = $index;
+          break;
+        }
+      }
+      if (isset($last)) {
+        for ($x = $last - $preslots; $x <= $last; $x++) {
+          $valid_lengths[$x]['is_valid'] = false;
         }
       }
     }

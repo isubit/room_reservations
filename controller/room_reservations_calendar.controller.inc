@@ -11,14 +11,19 @@
  *   (optional) The month of the day selected by the user.
  * @param int $selected_day
  *   (optional) The day of the month selected by the user.
- * @param string $selected_category
- *   (optional) The room category selected by the user.
  *
  * @return string
  *   The page display formatted as HTML.
  */
-function room_reservations($selected_month = NULL, $selected_day = NULL, $selected_category = NULL) {
-  $dates = _room_reservations_dates($selected_month, $selected_day);
+function room_reservations($selected_month = NULL, $selected_day = NULL) {
+  global $yyyymmdd;
+  
+  // dates are now keyed by Cat ID; but we only need anyone of these to build calendar but make sure its the one which starts earliest
+  $datesbycat = _room_reservations_dates($selected_month, $selected_day);
+  $categories = _room_reservations_categories();
+  $earliest = _room_reservations_earliest_category($categories);
+  
+  $dates = $datesbycat[$earliest];
   
   // Determine which day has been selected by the user. If the user has entered a url that specifies a day outside of the
   // allowable reservation window, then set the current day as the selected day.
@@ -32,10 +37,11 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
     $dates[0]['selected'] = TRUE;
     $dates[0]['today'] = TRUE;
   }
-  $categories = _room_reservations_categories();
   
-  // If the day being displayed is today, only display time slots that are
-  // later than the current time minus two hours.
+  // a bit hacky; but we need to store what the calendar is using for its date so we can use this in theme functions later
+  //$_SESSION['reservations_current_day'] = $yyyymmdd;
+  
+  // If the day being displayed is today, only display time slots that are later than the current time minus two hours.
   $today_displayed = FALSE;
   foreach ($dates as $day) {
     if (($day['selected']) && $day['today']) {
@@ -145,12 +151,15 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
       $name = $data->title;
       $user_name = $data->name;
       $reservations[$rid][$time]['booked'] = TRUE;
+      $reservations[$rid][$time]['class'] .= ' booked';
       $reservations[$rid][$time]['name'] = $name;
       $reservations[$rid][$time]['user_name'] = $user_name;
       $reservations[$rid][$time]['id'] = $id; 
       $reservations[$rid][$time]['series_id'] = isset($data->reservation_series_id['und'][0]['value']) ? $data->reservation_series_id['und'][0]['value'] : '';
       $reservations[$rid][$time]['user'] = $data->uid;
-      $reservations[$rid][$time]['blocked'] = $data->reservation_block_title['und'][0]['value'];
+      $reservations[$rid][$time]['blocked'] = isset($data->reservation_block_title['und'][0]['value']) ? $data->reservation_block_title['und'][0]['value'] : 0;
+      
+      // add rest of slots as booked for the length of this reservation
       $length = $data->reservation_length['und'][0]['value'];;
       $time_slots = $length / 30;
       $reservations[$rid][$time]['slots'] = $time_slots;
@@ -164,12 +173,38 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
         $key++;
         $next_time = $times[$key];
         $reservations[$rid][$next_time]['booked'] = TRUE;
+        $reservations[$rid][$next_time]['class'] .= ' booked';
         $x++;
         // unclear how we handle wrapping a reservation to the next day; but reservation time slots can't go passed midnight; i.e. slot 47 
         if ($key == 47) {
           break;
         }
       }
+      
+      // add in pre/post buffer for setup/takedown (rev 7.x-1.3+)
+      //  - if the slot is part of buffer we add "setup" to class
+      //  - if we don't have admin rights; we also mark it as booked so no one can book in these slots
+      $category = $categories[$rooms[$rid]['reservations_room_category']['und'][0]['target_id']];
+      $preslots = $category['prebuffer'] / 30;
+      $postslots = $category['postbuffer'] / 30;
+      $startkey = array_search($reservations[$rid][$time]['time'], $times);
+      $endkey = $startkey + $time_slots;
+      $k = $startkey - $preslots;
+      while ($k < $startkey) {
+        if (!$reservations[$rid][$times[$k]]['booked']) {
+          $reservations[$rid][$times[$k]]['class'] .= ' setup';
+        }
+        $reservations[$rid][$times[$k]]['booked'] = user_access('book over buffer') ? $reservations[$rid][$times[$k]]['booked'] : true;
+        $k++;
+      }
+      $k = $endkey;
+      while ($k < $endkey + $postslots) {
+        if (!$reservations[$rid][$times[$k]]['booked']) {
+          $reservations[$rid][$times[$k]]['class'] .= ' setup';
+        }
+        $reservations[$rid][$times[$k]]['booked'] = user_access('book over buffer') ? $reservations[$rid][$times[$k]]['booked'] : true;
+        $k++;
+      } 
     }
   }
     
@@ -255,3 +290,35 @@ function room_reservations($selected_month = NULL, $selected_day = NULL, $select
   return $output;
 }
 
+function _room_reservations_earliest_category($categories) {
+  $earliest = 1000;
+  foreach ($categories as $cat) {
+    if ($cat['advmin'] < $earliest) {
+      $earliest = $cat['advmin'];
+      $result = $cat['nid'];
+    }
+  }  
+  return $result;
+}
+
+function _room_reservations_get_dates() {
+  // dates are now keyed by Cat ID; but we only need anyone of these to build calendar but make sure its the one which starts earliest
+  $datesbycat = _room_reservations_dates($selected_month, $selected_day);
+  $categories = _room_reservations_categories();
+  $earliest = _room_reservations_earlist_category($categories);
+  $dates = $datesbycat[$earliest];
+  
+  // Determine which day has been selected by the user. If the user has entered a url that specifies a day outside of the
+  // allowable reservation window, then set the current day as the selected day.
+  $yyyymmdd = $dates[0]['yyyymmdd'];
+  foreach ($dates as $day) {
+    if ($day['selected']) {
+      $yyyymmdd = $day['yyyymmdd'];
+    }
+  }
+  if ($yyyymmdd == $dates[0]['yyyymmdd']) {
+    $dates[0]['selected'] = TRUE;
+    $dates[0]['today'] = TRUE;
+  }
+  return $dates;
+}

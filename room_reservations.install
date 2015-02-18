@@ -191,14 +191,44 @@ function room_reservations_update_7000() {
 * fix a couple of the Notices - due to incomplete node defs
 */
 function room_reservations_update_7001() {
-  // Create all the fields we are adding to our content type.
   foreach (_room_reservations_installed_fields_room() as $field) {
     field_update_field($field);
   }
-  // Create all the instances for our fields.
   foreach (_room_reservations_installed_instances_room() as $instance) {
     $instance['entity_type'] = 'node';
     $instance['bundle'] = 'room_reservations_room';
     field_update_instance($instance);
+  }
+} 
+
+/**
+*   Add Cateogry field Minimum Advanced Booking, 
+*   Add Cateogry field Setup time, 
+*   Add Cateogry field Takedown time
+*/
+function room_reservations_update_7002() {
+  $existing = field_info_field_map();
+  $create = array(
+    'reservations_minadvbooking',
+    'reservations_prebuffer',
+    'reservations_postbuffer',
+  );
+  foreach (_room_reservations_installed_fields_category() as $field) {
+    if (isset($existing[$field['field_name']])) {
+      continue;
+    }
+    if (in_array($field['field_name'], $create)) {
+      field_create_field($field);
+    }
+  }
+  foreach (_room_reservations_installed_instances_category() as $instance) {
+    if (isset($existing[$instance['field_name']])) {
+      continue;
+    }
+    $instance['entity_type'] = 'node';
+    $instance['bundle'] = 'room_reservations_category';
+    if (in_array($instance['field_name'], $create)) {
+      field_create_instance($instance);
+    }
   }
 } 

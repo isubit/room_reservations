@@ -48,6 +48,9 @@ module_load_include('inc', 'room_reservations', '/view/room_reservations.view');
 function theme_room_reservations($variables) {
   global $user;
   global $base_url;
+    
+  // to support minimum adv booking per category; let's get available dates per cat
+  $datespercat = _room_reservations_dates(null, null, true);
   
   // pass date format to JS
   $format = strtolower(variable_get('room_reservations_picker_format', 'y/m/d'));
@@ -94,33 +97,28 @@ function theme_room_reservations($variables) {
     '<div class="hours">'  . $date . '&nbsp;&nbsp;' . $building_hours_display . '</div>';
   
   // add new Day Selector as popup calendar since we now allow going out up to 6 months rather than 15 days.
-  $form = drupal_get_form('room_reservations_admin_date_picker');
+  $form = drupal_get_form('room_reservations_admin_date_picker', $yyyymmdd);
   $output .= '<div id="date-change">' . drupal_render($form) . '</div>';
   
   // Reservation calendar grid:
   //
-  // Each block on the grid is assigned one of the following classes:
+  // Each block on the grid is assigned one (or more) of the following classes:
   //
   // closed - the building is closed;
   // booked - the building is open and the time slot has been reserved;
-  // open - the building is open, the time slot has not been reserved, but
-  // the user must login to reserve the time slot;
-  // reservable - the building is open, the time slot has not been reserved,
-  // and the user is able to reserve the time slot.
+  // open - the building is open, the time slot has not been reserved, but the user must login to reserve the time slot;
+  // reservable - the building is open, the time slot has not been reserved and the user is able to reserve the time slot.
+  // setup - buffer zones added before/after bookings to allow for setup/takedown (per category)
+  // 
   
   // Tabs.
   $output .= "<ul class='room-tabs'>";
   $i = 0;
   foreach ($categories as $category) {
-    // Set the active tab - first tab if none has been selected yet.
-    if (!$selected_category) {
-      $active = ($i == 0) ? " class='active'" : "";
-      $i++;
-    }
-    else {
-      $active = ($category['title'] == $selected_category) ? " class='active'" : "";
-    }
-
+    // Set the first tab as active
+    // @todo: use JS to set active based on anchor
+    $active = ($i == 0) ? " class='active'" : "";
+    $i++;
     $id = strtolower(preg_replace('/[^a-zA-Z0-9-]+/', '-', $category['title']));
     $output .= '<li><a' . $active . " href='#" . $id . "'>" . $category['title'] . '</a></li>';
   }
@@ -157,8 +155,8 @@ function theme_room_reservations($variables) {
     $r++;
     $table[$r][$c] = "<li class='room-info room-info-heading'>" . t('Capacity') . '</li>';
     $r++;
+   
     // Available hours column.
-    
     foreach ($hours as $time_slot) {
       $time_display = ($time_slot['class'] == 'odd') ? t($time_slot['display']) : "";
       $table[$r][$c] = "<li class='" . $time_slot['class'] . " timeslot' time='" . $time_slot['time'] . "' " . '>' . $time_display . '</li>';
@@ -205,9 +203,19 @@ function theme_room_reservations($variables) {
           $r++;
           $time = $time_slot['time'];
           $open = $time_slot['open'];
+          
+          // lets use slot class from reservation if it is set
+          $slotclass = isset($reservations[$rid][$time_slot['time']]['class']) ? $reservations[$rid][$time_slot['time']]['class'] : $time_slot['class'];
+          
+          // to support min adv booking per cat; let's simply mark all slots as closed for dates not availble to this user for this cat
+          if (!isset($datespercat[$category['nid']][$yyyymmdd])) {
+            $open = false; 
+          }
+          
           // Determine if the building is open or closed for this time slot.
           if ($open) {
-            $booked_class = ($reservations[$rid][$time]['booked']) ? 'booked' : $unbooked_class;
+            //$booked_class = ($reservations[$rid][$time]['booked']) ? 'booked' : $unbooked_class;
+            $booked_class = ($reservations[$rid][$time]['booked']) ? '' : $unbooked_class;
           }
           else {
             $booked_class = 'closed';
@@ -235,8 +243,10 @@ function theme_room_reservations($variables) {
             $link = '';
           }
           else {
-            // The time slot has a reservation that can be viewed by the current user.
-            $viewable_class = (($full_access) || ($reservations[$rid][$time]['user'] == $user->uid)) ? 'viewable' : '';
+            // The time slot has a reservation that can be edited by the current user.
+            $reservation = node_load($reservations[$rid][$time]['id']);
+            $viewable_class = node_access('update', $reservation) ? 'viewable' : '';
+            //$viewable_class = (($full_access) || ($reservations[$rid][$time]['user'] == $user->uid)) ? 'viewable' : '';
             if ($viewable_class == 'viewable') {
               $id = $reservations[$rid][$time]['id'];
               $link = $id ? l($reservations[$rid][$time]['name'], 'node/' . $id . '/edit', 
@@ -247,10 +257,10 @@ function theme_room_reservations($variables) {
               ) : '';
             }
             // The time slot has a reservation that cannot be viewed by the current user. and we are NOT allowed to see the Title
-            else if ($reservations[$rid][$time]['blocked']){
+            else if (isset($reservations[$rid][$time]['blocked']) && $reservations[$rid][$time]['blocked']) {
               $link = t('Booked');
             }    
-            // The time slot has a reservation that cannot be viewed by the current user. but we are allowed to see the Title
+            // The time slot has a reservation that cannot be edited by the current user. but we are allowed to see the Title
             else {
               $link = $reservations[$rid][$time]['name'];
             }
@@ -261,10 +271,19 @@ function theme_room_reservations($variables) {
           // allow other modules to modify the $link
           drupal_alter('room_reservations_link', $link, $reservations[$rid][$time]); 
           
+          // allow other modules adding a custom class to slots
+          $custom_class = '';
+          drupal_alter('room_reservations_custom_class', $custom_class, $reservations[$rid][$time]);
+                   
           // add div wrapper to display better
           $link = $link ? '<div class="booking-span">' . $link . '</div>' : '';
-        
-          $table[$r][$c] = "<li class='" . $time_slot['class'] . ' ' . $booked_class .  " " . $viewable_class .  " " . $widthclass. "'>" . $link . "</li>";
+          
+          // we used book class to determine if linked or not; which we needed for pre/post slots as well as actual reservation slots
+          // but we don't want to show booked class now for the slots which are just buffer slots
+          if (stristr($slotclass, 'setup')) {
+            $booked_class = '';
+          }
+          $table[$r][$c] = "<li class='" . $slotclass . ' ' . $booked_class . ' ' . $custom_class . ' ' . $viewable_class .  ' ' . $widthclass. "'>" . $link . "</li>";
         }
         // Room name and capacity.
         $r++;
@@ -313,14 +332,9 @@ function theme_room_reservations($variables) {
   return $output;
 }
 
-function room_reservations_admin_date_picker($form_state) {
-  if (($arg1 = arg(1)) && ($arg2 = arg(2))) {
-    $default = $arg1 . '-' . $arg2;
-  }
-  else {
-    $default = date('m-d');
-  }
-  $parts = explode('-', $default);
+function room_reservations_admin_date_picker($form, &$form_state) {
+  $yyyymmdd = $form_state['build_info']['args'][0];
+  $parts = explode('-', $yyyymmdd);
   if (user_access('create room reservations extended')) {
     $advancedays = variable_get('room_reservations_advance_extended', 180);
   }
@@ -328,9 +342,8 @@ function room_reservations_admin_date_picker($form_state) {
     $advancedays = variable_get('room_reservations_advance_standard', 14);
   }
   $yearnow = date('Y');
-  
   $absdaynow = date('z');
-  $absdaydefault = date('z', mktime(0, 0, 0, $parts[0], $parts[1], $yearnow));
+  $absdaydefault = date('z', mktime(0, 0, 0, $parts[2], $parts[1], $yearnow));
   if ($absdaynow > $absdaydefault) {
     $yeardefault = $yearnow + 1;
   }
@@ -341,7 +354,7 @@ function room_reservations_admin_date_picker($form_state) {
   $format = str_replace('y', 'Y', strtolower(variable_get('room_reservations_picker_format', 'y/m/d')));
   $form['date'] = array(
     '#type' => 'date_popup',
-    '#default_value' => $yeardefault . '-' . $default . ' 00:00:00',
+    '#default_value' => $yeardefault . '-' . $parts[1] . '-' . $parts[2] . ' 00:00:00',
     '#date_type' => DATE_DATETIME,
     '#date_timezone' => date_default_timezone(),
     '#date_format' => $format,
