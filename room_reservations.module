@@ -270,15 +270,9 @@ function room_reservations_node_access($nodetype_or_node, $op, $account) {
     
     case 'room_reservations_reservation':
       global $user;
+      // if it is my reservation; do nothing (let Drupal handle as usual)
       if ((is_object($nodetype_or_node) && $nodetype_or_node->uid == $user->uid)) {
-        switch ($op) {
-          case 'update':
-            return NODE_ACCESS_ALLOW;
-          case 'delete':
-            return NODE_ACCESS_ALLOW;
-          case 'view':
-            return user_access('administer room reservations system') ? NODE_ACCESS_ALLOW : NODE_ACCESS_IGNORE;
-        }
+        return NODE_ACCESS_IGNORE;
       }
       else {
         switch ($op) {

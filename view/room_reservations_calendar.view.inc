@@ -343,7 +343,7 @@ function room_reservations_admin_date_picker($form, &$form_state) {
   }
   $yearnow = date('Y');
   $absdaynow = date('z');
-  $absdaydefault = date('z', mktime(0, 0, 0, $parts[2], $parts[1], $yearnow));
+  $absdaydefault = date('z', mktime(0, 0, 0, $parts[1], $parts[2], $yearnow));
   if ($absdaynow > $absdaydefault) {
     $yeardefault = $yearnow + 1;
   }
