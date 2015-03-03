@@ -507,7 +507,7 @@ function return_to_reservations_page($form, &$form_state) {
   $room = $rooms[$rid];
   $catid = $room['reservations_room_category']['und'][0]['target_id'];
   $category = $categories[$catid];
-  $anchor = $category['title'];
+  $anchor = strtolower(preg_replace('/[^a-zA-Z0-9-]+/', '-', $category['title']));
   
   // need to handle both update and delete case
   $date = $form['#node']->reservation_date['und'][0]['value'] ? $form['#node']->reservation_date['und'][0]['value'] : $form_state['values']['reservation_date']['und'][0]['value'];
