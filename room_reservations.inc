@@ -1081,7 +1081,9 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
         ->entityCondition('bundle', 'room_reservations_reservation')   
         ->fieldCondition('reservation_date', 'value', $date, '=')     
         ->fieldCondition('reservation_time', 'value', $start_time, '=')         
-        ->fieldCondition('reservation_room', 'target_id', $rid, '=');
+        ->fieldCondition('reservation_room', 'target_id', $rid, '=')
+        // EFQ respects access so let's load the reservations as user 1 to make sure we get them all
+        ->addMetaData('account', user_load(1));
       // if editing a reservation (series) we need to not include any of the reservations in current series
       if (arg(2) == 'edit') {
         $nid = arg(1);

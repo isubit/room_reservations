@@ -139,7 +139,12 @@ function room_reservations($selected_month = NULL, $selected_day = NULL) {
   $query->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', 'room_reservations_reservation')
     ->fieldCondition('reservation_date', 'value', $yyyymmdd . '%', 'like')
-    ->fieldOrderBy('reservation_time', 'value', 'DESC');
+    ->fieldOrderBy('reservation_time', 'value', 'DESC')
+    // EFQ respects access so if user does not have access to view a reservation (most likely due to some access module then we will not return a 
+    // reservation for this slot; this means it will not block this slot from being bookable - which is likely worse than being able to 
+    // see the booking title (especially since we have a method to block the title if user really doesn't want anyone to see it)
+    // so, let's load the reservations as user 1 to make sure we get them all
+    ->addMetaData('account', user_load(1));
   $result = $query->execute();
   if (isset($result['node'])) {
     $result_nids = array_keys($result['node']);
@@ -237,7 +242,9 @@ function room_reservations($selected_month = NULL, $selected_day = NULL) {
     ->entityCondition('bundle', 'room_reservations_reservation')
     ->fieldCondition('reservation_date', 'value', $previous_day . '%', 'like')
     ->fieldCondition('reservation_time', 'value', $search_times,  'in')
-    ->fieldOrderBy('reservation_time', 'value', 'DESC');
+    ->fieldOrderBy('reservation_time', 'value', 'DESC')
+    // EFQ respects access so let's load the reservations as user 1 to make sure we get them all
+    ->addMetaData('account', user_load(1));
   $result = $query->execute();
   if (isset($result['node'])) {
     $result_nids = array_keys($result['node']);
