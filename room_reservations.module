@@ -249,6 +249,8 @@ function room_reservations_permission() {
  * 
  *  rev 1.3 - change all node access deny to node access ignore so that other modules may better integrate 
  *    - i.e. if DENY is set no other module can override that
+ * 
+ *  NOTE - this hook is not called for user 1
  */
 function room_reservations_node_access($nodetype_or_node, $op, $account) {
   if (is_object($nodetype_or_node)) {
@@ -277,8 +279,17 @@ function room_reservations_node_access($nodetype_or_node, $op, $account) {
       else {
         switch ($op) {
           case 'create':
-            return (user_access('create room reservations standard') || user_access('create room reservations extended') 
-              || user_access('administer room reservations system')) ? NODE_ACCESS_ALLOW : NODE_ACCESS_IGNORE;
+            // if we are trying to create a reservation let's make sure user hasn't just entered dates via url
+            // since available lengths takes allowed dates into account; lets just use that
+            $yyyymmdd = _room_reservations_yyyymmdd(arg(3), arg(4));
+            $lengths = _room_reservations_valid_lengths(arg(6), $yyyymmdd, arg(5));
+            foreach ($lengths as $length) {
+              if ($length['is_valid']) {
+                return (user_access('create room reservations standard') || user_access('create room reservations extended') 
+                  || user_access('administer room reservations system')) ? NODE_ACCESS_ALLOW : NODE_ACCESS_IGNORE;
+              }
+            }
+            return NODE_ACCESS_DENY;
           case 'update':
             return (user_access('administer room reservations system') || user_access('edit any room reservation')) ? NODE_ACCESS_ALLOW : NODE_ACCESS_IGNORE;
           case 'delete':

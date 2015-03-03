@@ -1007,6 +1007,12 @@ function _room_reservations_start_conflicts($room, $yyyymmdd, $time) {
  *   reservation being made.
  */
 function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $all = FALSE) {
+  // let's first ensure this is a valid RID
+  $rooms = _room_reservations_rooms();
+  if (!isset($rooms[$rid])) {
+    return null;  
+  }
+  
   $max_length = user_access('create room reservations extended length') 
     ? variable_get('room_reservations_max_length_extended', 120) 
     : variable_get('room_reservations_max_length_standard', 120);
@@ -1060,7 +1066,7 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
     }
   }
   
-  // Determine if the reservation at each possible length would conflict with another reservtion.  If so, set is_valid for that length to FALSE.
+  // Determine if the reservation at each possible length would conflict with another reservation.  If so, set is_valid for that length to FALSE.
   // The first time slot has already been validated and does not need to be checked again.
   if ($all) {
     $start = 0;
@@ -1529,4 +1535,18 @@ function _room_reservations_is_slot_free($rid, $yyyymmdd, $time, $length) {
     }
   }
   return false;
+}
+
+function _room_reservations_yyyymmdd($month, $day) {
+  // determine if this year or next year
+  $yearnow = date('Y');
+  $absdaynow = date('z');
+  $absdaydefault = date('z', mktime(0, 0, 0, $month, $day, $yearnow));
+  if ($absdaynow > $absdaydefault) {
+    $year = $yearnow + 1;
+  }
+  else {
+    $year = $yearnow;
+  }
+  return date('Y-m-d', strtotime($year . '-' . arg(3) . '-' . arg(4)));
 }

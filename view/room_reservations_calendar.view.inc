@@ -362,7 +362,7 @@ function room_reservations_admin_date_picker($form, &$form_state) {
     '#date_year_range' => '-0:+1',
     '#datepicker_options' => array(
       'minDate' => '+0d',
-      'maxDate' => $advancedays . 'D',
+      'maxDate' => $advancedays -1 . 'D',
     )
   );
   
