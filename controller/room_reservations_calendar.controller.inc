@@ -21,6 +21,16 @@ function room_reservations($selected_month = NULL, $selected_day = NULL) {
   // dates are now keyed by Cat ID; but we only need anyone of these to build calendar but make sure its the one which starts earliest
   $datesbycat = _room_reservations_dates($selected_month, $selected_day);
   $categories = _room_reservations_categories();
+  
+  // allow other modules to alter the categories
+  drupal_alter('room_reservations_categories', $categories);
+  
+  // if no Categories left; we should not bother with the rest of this
+  if (!count($categories)) {
+    drupal_set_message(t('There are no configured Room Categories. Please contact the System Administrator'), 'warning');
+    drupal_goto();
+  }
+  
   $earliest = _room_reservations_earliest_category($categories);
   
   $dates = $datesbycat[$earliest];
