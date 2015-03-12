@@ -1548,5 +1548,5 @@ function _room_reservations_yyyymmdd($month, $day) {
   else {
     $year = $yearnow;
   }
-  return date('Y-m-d', strtotime($year . '-' . arg(3) . '-' . arg(4)));
+  return date('Y-m-d', strtotime($year . '-' . $month . '-' . $day));
 }
