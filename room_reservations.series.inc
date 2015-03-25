@@ -165,3 +165,27 @@ function _room_reservations_series_delete($form) {
   drupal_set_message(t('The reservation series @title was deleted.', array('@title' => $title)));  
   drupal_goto('room_reservations');
 }
+
+/**
+* copy above function for API use only
+*   - pass SID
+* 
+* @param mixed $sid
+*/
+function room_reservations_series_delete($sid) {
+  // grab all reservations in this series
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'room_reservations_reservation')   
+    ->fieldCondition('reservation_series_id', 'value', $sid, '=');     
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $nids = array_keys($result['node']);
+    foreach ($nids as $nid) {
+      node_delete($nid);
+    }
+  }
+  $res = node_load($sid);
+  drupal_set_message(t('The reservation series @title was deleted.', array('@title' => $res->title)));  
+  drupal_goto('room_reservations');
+}
