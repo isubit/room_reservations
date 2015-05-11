@@ -162,8 +162,8 @@ function room_reservations($selected_month = NULL, $selected_day = NULL) {
     $results = entity_load('node', $result_nids);
     foreach ($results as $data) {
       $id = $data->nid;
-      $time = $data->reservation_time['und'][0]['value'];;
-      $rid = $data->reservation_room['und'][0]['target_id'];
+      $time = $data->reservation_time[LANGUAGE_NONE][0]['value'];;
+      $rid = $data->reservation_room[LANGUAGE_NONE][0]['target_id'];
       $name = $data->title;
       $user_name = $data->name;
       $reservations[$rid][$time]['booked'] = TRUE;
@@ -171,12 +171,12 @@ function room_reservations($selected_month = NULL, $selected_day = NULL) {
       $reservations[$rid][$time]['name'] = $name;
       $reservations[$rid][$time]['user_name'] = $user_name;
       $reservations[$rid][$time]['id'] = $id; 
-      $reservations[$rid][$time]['series_id'] = isset($data->reservation_series_id['und'][0]['value']) ? $data->reservation_series_id['und'][0]['value'] : '';
+      $reservations[$rid][$time]['series_id'] = isset($data->reservation_series_id[LANGUAGE_NONE][0]['value']) ? $data->reservation_series_id[LANGUAGE_NONE][0]['value'] : '';
       $reservations[$rid][$time]['user'] = $data->uid;
-      $reservations[$rid][$time]['blocked'] = isset($data->reservation_block_title['und'][0]['value']) ? $data->reservation_block_title['und'][0]['value'] : 0;
+      $reservations[$rid][$time]['blocked'] = isset($data->reservation_block_title[LANGUAGE_NONE][0]['value']) ? $data->reservation_block_title[LANGUAGE_NONE][0]['value'] : 0;
       
       // add rest of slots as booked for the length of this reservation
-      $length = $data->reservation_length['und'][0]['value'];;
+      $length = $data->reservation_length[LANGUAGE_NONE][0]['value'];;
       $time_slots = $length / 30;
       $reservations[$rid][$time]['slots'] = $time_slots;
       $remainder = $length % 30;
@@ -200,7 +200,7 @@ function room_reservations($selected_month = NULL, $selected_day = NULL) {
       // add in pre/post buffer for setup/takedown (rev 7.x-1.3+)
       //  - if the slot is part of buffer we add "setup" to class
       //  - if we don't have admin rights; we also mark it as booked so no one can book in these slots
-      $category = $categories[$rooms[$rid]['reservations_room_category']['und'][0]['target_id']];
+      $category = $categories[$rooms[$rid]['reservations_room_category'][LANGUAGE_NONE][0]['target_id']];
       $preslots = $category['prebuffer'] / 30;
       $postslots = $category['postbuffer'] / 30;
       $startkey = array_search($reservations[$rid][$time]['time'], $times);
@@ -262,9 +262,9 @@ function room_reservations($selected_month = NULL, $selected_day = NULL) {
     $results = entity_load('node', $result_nids);
     foreach ($results as $data) {
       $id = $data->nid;
-      $time = $data->reservation_time['und'][0]['value'];
-      $rid = $data->reservation_room['und'][0]['target_id'];
-      $length = $data->reservation_length['und'][0]['value'];
+      $time = $data->reservation_time[LANGUAGE_NONE][0]['value'];
+      $rid = $data->reservation_room[LANGUAGE_NONE][0]['target_id'];
+      $length = $data->reservation_length[LANGUAGE_NONE][0]['value'];
       //$room_name = $data->room;
       $name = $data->title;
       $user_name = $data->name;

@@ -249,9 +249,9 @@ function _room_reservations_categories() {
       $categories[$cat->nid] = array(
         'nid' => $cat->nid,
         'title' => check_plain($cat->title),
-        'advmin' => isset($cat->reservations_minadvbooking['und'][0]['value']) ? $cat->reservations_minadvbooking['und'][0]['value'] : 0,
-        'prebuffer' => $cat->reservations_prebuffer['und'][0]['value'],
-        'postbuffer' => $cat->reservations_postbuffer['und'][0]['value'],
+        'advmin' => isset($cat->reservations_minadvbooking[LANGUAGE_NONE][0]['value']) ? $cat->reservations_minadvbooking[LANGUAGE_NONE][0]['value'] : 0,
+        'prebuffer' => $cat->reservations_prebuffer[LANGUAGE_NONE][0]['value'],
+        'postbuffer' => $cat->reservations_postbuffer[LANGUAGE_NONE][0]['value'],
       );  
     }
   }
@@ -1094,7 +1094,7 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
       if (arg(2) == 'edit') {
         $nid = arg(1);
         $res = node_load($nid);
-        if (isset($res->reservation_series_id['und'][0]['value']) && $sid = $res->reservation_series_id['und'][0]['value']) {
+        if (isset($res->reservation_series_id[LANGUAGE_NONE][0]['value']) && $sid = $res->reservation_series_id[LANGUAGE_NONE][0]['value']) {
           $query->fieldCondition('reservation_series_id', 'value', $sid, '!=');
         }
       }     
@@ -1112,7 +1112,7 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
   if (!user_access('book over buffer')) {
     $categories = _room_reservations_categories();
     $rooms = _room_reservations_rooms();
-    $category = $categories[$rooms[$rid]['reservations_room_category']['und'][0]['target_id']];
+    $category = $categories[$rooms[$rid]['reservations_room_category'][LANGUAGE_NONE][0]['target_id']];
     $preslots = $category['prebuffer'] / 30;
     if ($preslots) {
       foreach ($valid_lengths as $index => $length) {
@@ -1300,11 +1300,11 @@ function _room_reservations_user_reservations() {
       foreach ($results as $data) {
         $reservation = array();
         $reservation['id'] = $data->nid;
-        $unix_timestamp = strtotime($data->reservation_date['und'][0]['value']);
+        $unix_timestamp = strtotime($data->reservation_date[LANGUAGE_NONE][0]['value']);
         $reservation['date'] = date("l, n/j", $unix_timestamp);
         $reservation['time'] = '';
         foreach ($all_hours as $time_slot) {
-          if ($time_slot['time'] == $data->reservation_time['und'][0]['value']) {
+          if ($time_slot['time'] == $data->reservation_time[LANGUAGE_NONE][0]['value']) {
             $reservation['time'] = $time_slot['display'];
             break;
           }

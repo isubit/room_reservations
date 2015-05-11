@@ -19,13 +19,13 @@ function room_reservations_insert($node) {
     return;
   }
   
-  $rtype = $node->reservation_repeat_type['und'][0]['value'];
-  $start =  $node->reservation_date['und'][0]['value'];
+  $rtype = $node->reservation_repeat_type[LANGUAGE_NONE][0]['value'];
+  $start =  $node->reservation_date[LANGUAGE_NONE][0]['value'];
   $start_yyyy_mm_dd = date('Y-m-d', strtotime($start));
-  $end =  date('Y-m-d', strtotime($node->reservation_repeat_until['und'][0]['value']));
-  $time = $node->reservation_time['und'][0]['value'];
-  $length = $node->reservation_length['und'][0]['value'];
-  $rid = $node->reservation_room['und'][0]['target_id'];
+  $end =  date('Y-m-d', strtotime($node->reservation_repeat_until[LANGUAGE_NONE][0]['value']));
+  $time = $node->reservation_time[LANGUAGE_NONE][0]['value'];
+  $length = $node->reservation_length[LANGUAGE_NONE][0]['value'];
+  $rid = $node->reservation_room[LANGUAGE_NONE][0]['target_id'];
   $day = date('l', strtotime($start));
   
   $msg = '';
@@ -50,7 +50,7 @@ function room_reservations_insert($node) {
   }
 
   // set NID as Series ID for both the primary node and the repeat nodes
-  $node->reservation_series_id['und'][0]['value'] = $node->nid;
+  $node->reservation_series_id[LANGUAGE_NONE][0]['value'] = $node->nid;
   
   $tmp = clone($node);
   unset($tmp->nid, $tmp->vid);   
@@ -65,7 +65,7 @@ function room_reservations_insert($node) {
     // the first one we don't check as we could not have picked it if it wasn't
     if (_room_reservations_is_slot_free($rid, $date, $time, $length)) {
       $new = clone($tmp);
-      $new->reservation_date['und'][0]['value'] = $date . ' 00:00:00';    // added 12:00:00 to fix TZ issues; this is unlikely correct way to do this
+      $new->reservation_date[LANGUAGE_NONE][0]['value'] = $date . ' 00:00:00';    // added 12:00:00 to fix TZ issues; this is unlikely correct way to do this
       $new->saved = true;
       node_save($new);
     }
@@ -97,16 +97,16 @@ function room_reservations_update($node) {
   }
   
   // if not part of a Series or special single only url; do nothing
-  if (!isset($node->reservation_series_id['und'][0]) || !($sid = $node->reservation_series_id['und'][0]['value']) || isset($_GET['single'])) {
+  if (!isset($node->reservation_series_id[LANGUAGE_NONE][0]) || !($sid = $node->reservation_series_id[LANGUAGE_NONE][0]['value']) || isset($_GET['single'])) {
     return;
   }
   
   // reservation details
-  $start =  $node->reservation_date['und'][0]['value'];
-  $end =  date('Y-m-d', strtotime($node->reservation_repeat_until['und'][0]['value']));
-  $time = $node->reservation_time['und'][0]['value'];
-  $length = $node->reservation_length['und'][0]['value'];
-  $rid = $node->reservation_room['und'][0]['target_id'];
+  $start =  $node->reservation_date[LANGUAGE_NONE][0]['value'];
+  $end =  date('Y-m-d', strtotime($node->reservation_repeat_until[LANGUAGE_NONE][0]['value']));
+  $time = $node->reservation_time[LANGUAGE_NONE][0]['value'];
+  $length = $node->reservation_length[LANGUAGE_NONE][0]['value'];
+  $rid = $node->reservation_room[LANGUAGE_NONE][0]['target_id'];
   $day = date('l', strtotime($start));
   
   // grab all reservations in this series
@@ -123,11 +123,11 @@ function room_reservations_update($node) {
       // for now, only allow changing Title, Blocked title, Length
       // first 2 are easy; but to change length we need to check if that period is available and if not delete entry from Series
       $data->title = $node->title;
-      $data->reservation_block_title['und'][0]['value'] = $node->reservation_block_title['und'][0]['value'];
+      $data->reservation_block_title[LANGUAGE_NONE][0]['value'] = $node->reservation_block_title[LANGUAGE_NONE][0]['value'];
       
-      $date = date('Y-m-d', strtotime($data->reservation_date['und'][0]['value']));
+      $date = date('Y-m-d', strtotime($data->reservation_date[LANGUAGE_NONE][0]['value']));
       if (_room_reservations_is_slot_free($rid, $date, $time, $length)) {
-        $data->reservation_length['und'][0]['value'] = $node->reservation_length['und'][0]['value'];
+        $data->reservation_length[LANGUAGE_NONE][0]['value'] = $node->reservation_length[LANGUAGE_NONE][0]['value'];
         $data->saved = true;
         node_save($data);
       }
@@ -148,7 +148,7 @@ function room_reservations_update($node) {
 }
 
 function _room_reservations_series_delete($form) {
-  $sid = $form['#node']->reservation_series_id['und'][0]['value'];
+  $sid = $form['#node']->reservation_series_id[LANGUAGE_NONE][0]['value'];
   // grab all reservations in this series
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
