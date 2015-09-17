@@ -303,7 +303,6 @@ function room_reservations($selected_month = NULL, $selected_day = NULL) {
     'building_hours' => $_room_reservations_building_hours,
     'building_hours_display' => $building_hours_display,
     'rooms' => $rooms, 
-    'selected_category' => $selected_category,
     'user_reservations' => $user_reservations));
   return $output;
 }
