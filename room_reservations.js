@@ -25,7 +25,7 @@ Drupal.behaviors.room_reservations.attach = function(context) {
 
   // change calendar date displayed
   $('#edit-date-datepicker-popup-0').change(function() {
-    var datebits = $(this).attr('value').split('/');
+    var datebits = $(this).val().split('/');
     var formatarr = Drupal.settings.room_reservations.dateformat.split('/');
     var dateobj = new Object();
     $.each(formatarr, function(index, value) {
