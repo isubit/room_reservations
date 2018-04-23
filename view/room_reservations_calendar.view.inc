@@ -103,15 +103,14 @@ function theme_room_reservations($variables) {
   // Calendar date.
   $date = format_date(strtotime($month . ' ' . $xday . ', ' . $year), 'custom', 'l, F d, Y'); 
 
-  $output .= '<h2>' . t('Reservation Calendar') . '</h2>' ."<p>This is a list of today's room reservations. To reserve a room <b>click on a time slot under the desired room</b>. To see a different date, click in the date box below.</p>";
-  $output .= '<div style="margin-bottom: 1rem; font-weight: bold;">'  . $date . '&nbsp;&nbsp;' . $building_hours_display . '</div>';
+  $output .= '<h2>' . t('Reservation Calendar') . '</h2>' .'<p class="alert alert-note"><span class="fa fa-info-circle"></span> Click in a time slot to reserve a room.</p>';
 
   /* $output .= '<h3 class="date">' . t('Reservation Calendar') . '</h3>' .
     '<div class="hours">'  . $date . '&nbsp;&nbsp;' . $building_hours_display . '</div>';*/
   
   // add new Day Selector as popup calendar since we now allow going out up to 6 months rather than 15 days.
   $form = drupal_get_form('room_reservations_admin_date_picker', $yyyymmdd);
-  $output .= '<div style="margin-bottom: 1rem;">' . drupal_render($form) . '</div>';
+  $output .= '<div class="date-picker-wrap"><div class="date-picker-label">'  . $date . '</div>' . drupal_render($form) . '<span class="fa fa-calendar aria-hidden="true"></span></div></div>';
   
   // Reservation calendar grid:
   //
@@ -383,7 +382,7 @@ function room_reservations_admin_date_picker($form, &$form_state) {
 
 function _room_reservations_admin_date_picker_afterbuild($form, &$form_state) {
   $form['date']['date']['#title'] = '';
-  $form['date']['date']['#description'] = t('click in box to select date');
+  $form['date']['date']['#description'] = '';
   return $form;  
 }
 
