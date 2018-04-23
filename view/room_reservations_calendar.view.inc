@@ -247,9 +247,7 @@ function theme_room_reservations($variables) {
           }
           // The time slot can be reserved by the current user, but the user must login first.
           elseif ($booked_class == 'open') {
-            $link = "<a href='" . $base_url . "/shibboleth/pc?destination=node/add/room-reservations-reservation/" . $month_number . "/" . $xday . "/" .
-              $time_slot['time'] . "/" . $rid . "'><img src='" . base_path() . drupal_get_path('module', 'room_reservations') .
-              "/images/clear.png' /></a>";
+            $link = l(theme('image', array('path' => drupal_get_path('module', 'room_reservations') . '/images/clear.png')), isushib_login_link(), array('html' => TRUE, 'query' => array('destination' => 'node/add/room-reservations-reservation/' . $month_number . '/' . $xday . '/' . $time_slot['time'] . '/' . $rid)));
             $viewable = '';
           }
           elseif ($booked_class == 'closed') {
