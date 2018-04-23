@@ -63,7 +63,6 @@ function theme_room_reservations($variables) {
   $building_hours = $variables['building_hours'];
   $building_hours_display = $variables['building_hours_display'];
   $rooms = $variables['rooms'];
-  $selected_category = $variables['selected_category'];
   $user_reservations = $variables['user_reservations'];
 
   // User information.
@@ -148,12 +147,12 @@ function theme_room_reservations($variables) {
   foreach ($categories as $category) {
     $table = array();
     // Show the first tab and hide all others.
-    if (!$selected_category) {
+    if (empty($variables['selected_category'])) {
       $show = ($i == 0) ? 'show' : 'hide';
       $i++;
     }
     else {
-      $show = ($category['title'] == $selected_category) ? 'show' : 'hide';
+      $show = (!empty($variables['selected_category']) && $category['title'] == $variables['selected_category']) ? 'show' : 'hide';
     }
     $id = strtolower(preg_replace('/[^a-zA-Z0-9-]+/', '-', $category['title']));
     $r = 0; $c = 0;
