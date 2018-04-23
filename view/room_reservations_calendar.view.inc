@@ -48,6 +48,8 @@ module_load_include('inc', 'room_reservations', '/view/room_reservations.view');
 function theme_room_reservations($variables) {
   global $user;
   global $base_url;
+  global $base_secure_url;
+  global $base_root;
     
   // to support minimum adv booking per category; let's get available dates per cat
   $datespercat = _room_reservations_dates(null, null, true);
@@ -246,7 +248,20 @@ function theme_room_reservations($variables) {
           }
           // The time slot can be reserved by the current user, but the user must login first.
           elseif ($booked_class == 'open') {
-            $link = l(theme('image', array('path' => drupal_get_path('module', 'room_reservations') . '/images/clear.png')), isushib_login_link(), array('html' => TRUE, 'query' => array('destination' => 'node/add/room-reservations-reservation/' . $month_number . '/' . $xday . '/' . $time_slot['time'] . '/' . $rid)));
+
+            $options = array(
+              'https' => TRUE,
+              'query' => array('target' => url($base_secure_url . '/' . variable_get('isushib_login_dir', 'shibboleth') . '/pc', array('query' => array('destination' => url('node/add/room-reservations-reservation/' . $month_number . '/' . $xday . '/' . $time_slot['time'] . '/' . $rid))))),
+            );
+
+            $url = url($base_root . '/Shibboleth.sso/Login', $options);
+
+            // url() does not respect https option unless variable_get('https', FALSE)
+            // is TRUE, so ensure that link to Shibboleth is an https link.
+            $secure_url = str_replace('http://', 'https://', $url);
+
+            $link = l(theme('image', array('path' => drupal_get_path('module', 'room_reservations') . '/images/clear.png')), $secure_url, array('html' => TRUE));
+            
             $viewable = '';
           }
           elseif ($booked_class == 'closed') {
