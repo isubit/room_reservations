@@ -87,18 +87,23 @@ function theme_room_reservations($variables) {
   $output .= "<div id='tabbedPanels'>";
   
   // Info box - user reservations, maps, link to policies.
-  $output .= "<div id='info'><div>$calendar_text</div>
+
+  /* $output .= "<div id='info'><div>$calendar_text</div>
     <div><img id='arrow' src='" . base_path() . drupal_get_path('module', 'room_reservations') . "/images/007354-blue-jelly-icon-arrows-arrow-sparkle.png' />
-    <span id='start'>" . $reserve_room_instructions_text . '</span></div></div>';
+    <span id='start'>" . $reserve_room_instructions_text . '</span></div></div>'; */
   
   // Calendar date.
   $date = format_date(strtotime($month . ' ' . $xday . ', ' . $year), 'custom', 'l, F d, Y'); 
-  $output .= '<h3 class="date">' . t('Reservation Calendar') . '</h3>' .
-    '<div class="hours">'  . $date . '&nbsp;&nbsp;' . $building_hours_display . '</div>';
+
+  $output .= '<h2>' . t('Reservation Calendar') . '</h2>' ."<p>This is a list of today's room reservations. To reserve a room <b>click on a time slot under the desired room</b>. To see a different date, click in the date box below.</p>";
+  $output .= '<div style="margin-bottom: 1rem; font-weight: bold;">'  . $date . '&nbsp;&nbsp;' . $building_hours_display . '</div>';
+
+  /* $output .= '<h3 class="date">' . t('Reservation Calendar') . '</h3>' .
+    '<div class="hours">'  . $date . '&nbsp;&nbsp;' . $building_hours_display . '</div>';*/
   
   // add new Day Selector as popup calendar since we now allow going out up to 6 months rather than 15 days.
   $form = drupal_get_form('room_reservations_admin_date_picker', $yyyymmdd);
-  $output .= '<div id="date-change">' . drupal_render($form) . '</div>';
+  $output .= '<div style="margin-bottom: 1rem;">' . drupal_render($form) . '</div>';
   
   // Reservation calendar grid:
   //
