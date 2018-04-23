@@ -251,7 +251,7 @@ function theme_room_reservations($variables) {
 
             $options = array(
               'https' => TRUE,
-              'query' => array('target' => url($base_secure_url . '/' . variable_get('isushib_login_dir', 'shibboleth') . '/pc', array('query' => array('destination' => url('node/add/room-reservations-reservation/' . $month_number . '/' . $xday . '/' . $time_slot['time'] . '/' . $rid))))),
+              'query' => array('target' => url($base_secure_url . '/' . variable_get('isushib_login_dir', 'shibboleth') . '/pc', array('query' => array('destination' => 'node/add/room-reservations-reservation/' . $month_number . '/' . $xday . '/' . $time_slot['time'] . '/' . $rid)))),
             );
 
             $url = url($base_root . '/Shibboleth.sso/Login', $options);
@@ -261,7 +261,7 @@ function theme_room_reservations($variables) {
             $secure_url = str_replace('http://', 'https://', $url);
 
             $link = l(theme('image', array('path' => drupal_get_path('module', 'room_reservations') . '/images/clear.png')), $secure_url, array('html' => TRUE));
-            
+
             $viewable = '';
           }
           elseif ($booked_class == 'closed') {
