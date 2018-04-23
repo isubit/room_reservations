@@ -56,7 +56,16 @@ function theme_room_reservations($variables) {
   $format = strtolower(variable_get('room_reservations_picker_format', 'y/m/d'));
   drupal_add_js(array('room_reservations' => array('dateformat' => $format)), 'setting');
   
-  extract($variables);
+  $dates = $variables['dates'];
+  $categories = $variables['categories'];
+  $reservations = $variables['reservations'];
+  $hours = $variables['hours'];
+  $building_hours = $variables['building_hours'];
+  $building_hours_display = $variables['building_hours_display'];
+  $rooms = $variables['rooms'];
+  $selected_category = $variables['selected_category'];
+  $user_reservations = $variables['user_reservations'];
+
   // User information.
   $full_access = FALSE;
   $user_login_name = NULL;
