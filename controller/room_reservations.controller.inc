@@ -25,7 +25,7 @@ function room_reservations_res_list() {
     $user_reservations = _room_reservations_user_reservations();
     $count = count($user_reservations);
   }
-  $output .= theme('room_reservations_list', array('user' => $user, 'base_url' => $base_url, 'user_reservations' => $user_reservations, 'count' => $count));
+  $output = theme('room_reservations_list', array('user' => $user, 'base_url' => $base_url, 'user_reservations' => $user_reservations, 'count' => $count));
   return $output;
 }
 
