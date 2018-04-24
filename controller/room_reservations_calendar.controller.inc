@@ -177,7 +177,10 @@ function room_reservations($selected_month = NULL, $selected_day = NULL) {
       $reservations[$rid][$time]['series_id'] = isset($data->reservation_series_id[LANGUAGE_NONE][0]['value']) ? $data->reservation_series_id[LANGUAGE_NONE][0]['value'] : '';
       $reservations[$rid][$time]['user'] = $data->uid;
       $reservations[$rid][$time]['blocked'] = isset($data->reservation_block_title[LANGUAGE_NONE][0]['value']) ? $data->reservation_block_title[LANGUAGE_NONE][0]['value'] : 0;
-      
+      if (empty($reservations[$rid][$time]['time'])) {
+        $reservations[$rid][$time]['time'] = $time;
+      }
+
       // add rest of slots as booked for the length of this reservation
       $length = $data->reservation_length[LANGUAGE_NONE][0]['value'];;
       $time_slots = $length / 30;
