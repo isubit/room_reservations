@@ -214,6 +214,9 @@ function room_reservations($selected_month = NULL, $selected_day = NULL) {
       $k = $startkey - $preslots;
       while ($k < $startkey) {
         if (!$reservations[$rid][$times[$k]]['booked']) {
+          if (empty($reservations[$rid][$times[$k]]['class'])) {
+            $reservations[$rid][$times[$k]]['class'] = '';
+          }
           $reservations[$rid][$times[$k]]['class'] .= ' setup';
         }
         $reservations[$rid][$times[$k]]['booked'] = user_access('book over buffer') ? $reservations[$rid][$times[$k]]['booked'] : true;
@@ -222,6 +225,9 @@ function room_reservations($selected_month = NULL, $selected_day = NULL) {
       $k = $endkey;
       while ($k < $endkey + $postslots) {
         if (!$reservations[$rid][$times[$k]]['booked']) {
+          if (empty($reservations[$rid][$times[$k]]['class'])) {
+            $reservations[$rid][$times[$k]]['class'] = '';
+          }
           $reservations[$rid][$times[$k]]['class'] .= ' setup';
         }
         $reservations[$rid][$times[$k]]['booked'] = user_access('book over buffer') ? $reservations[$rid][$times[$k]]['booked'] : true;
