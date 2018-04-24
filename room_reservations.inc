@@ -1134,17 +1134,22 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
   // length to FALSE.  The first time slot has already been validated and
   // does not need to be checked again.
   $_room_reservations_building_hours = _room_reservations_facility_hours();
+  $conflicts_found = FALSE;
   for ($x = 0; $x < $max_slots; $x++) {
     $valid_length = $valid_lengths[$x];
     if ($valid_length['is_valid']) {
-      $conflicts_found = FALSE;
       $search_item = $search_items[$x];
       $date = $search_item['date'];
       $start_time = $search_item['start_time'];
+      if (!isset($_room_reservations_building_hours[$date])) {
+        $conflicts_found = TRUE;
+        break;
+      }
       $building_hours_day = $_room_reservations_building_hours[$date];
       // If building is closed, set conflict flag.
       if (!$building_hours_day['open']) {
         $conflicts_found = TRUE;
+        break;
       }
       $int_start_time = intval($start_time);
       $int_first_shift_open = intval($building_hours_day['first_shift_open']);
@@ -1153,6 +1158,7 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
       if ((!$building_hours_day['open_24_hours']) && ($building_hours_day['shifts'] == 1) && 
       (($int_start_time < $int_first_shift_open) || ($int_start_time >= $int_first_shift_close))) {
         $conflicts_found = TRUE;
+        break;
       }
       // Two shifts.
       $int_second_shift_open = intval($building_hours_day['second_shift_open']);
@@ -1165,16 +1171,18 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
           ($int_start_time >= $int_second_shift_close))
         ) {
         $conflicts_found = TRUE;
-      }
-      if ($conflicts_found) {
-        for ($y = $x; $y < $max_slots; $y++) {
-          $valid_lengths[$y]['is_valid'] = FALSE;
-        }
+        break;
       }
     }
+
   }
-  
-  
+
+  if ($conflicts_found) {
+    for ($y = $x; $y < $max_slots; $y++) {
+      $valid_lengths[$y]['is_valid'] = FALSE;
+    }
+  }
+
   /*
   // Determine if the reservation at each possible length would be the last time
   // slot before the building closes.  If so, reduce the length of time for that
