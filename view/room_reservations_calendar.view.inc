@@ -112,7 +112,7 @@ function theme_room_reservations($variables) {
   
   // add new Day Selector as popup calendar since we now allow going out up to 6 months rather than 15 days.
   $form = drupal_get_form('room_reservations_admin_date_picker', $yyyymmdd);
-  $output .= '<div class="date-picker-wrap"><div class="date-picker-label">'  . $date . '</div>' . drupal_render($form) . '<span class="fa fa-calendar aria-hidden="true"></span></div></div>';
+  $output .= '<div class="date-picker-wrap"><div class="date-picker-label">'  . $date . '</div>' . drupal_render($form) . '</div></div>';
   
   // Reservation calendar grid:
   //
@@ -396,9 +396,10 @@ function room_reservations_admin_date_picker($form, &$form_state) {
 }
 
 function _room_reservations_admin_date_picker_afterbuild($form, &$form_state) {
-  $form['date']['date']['#title'] = '';
+  $form['date']['date']['#title'] = '<span class="fa fa-calendar" aria-hidden="true"></span><span class="element-invisible element-focusable">Reservation Date</span>';
+  $form['date']['date']['#title_display'] = 'after';
   $form['date']['date']['#description'] = '';
-  return $form;  
+  return $form;
 }
 
 function _room_reservations_transpose($array) {
