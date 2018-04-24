@@ -184,7 +184,7 @@ function theme_room_reservations($variables) {
     $rooms_per_category = 0;
     foreach ($rooms as $room) {
       $rid = $room['nid'];
-      if ($room['reservations_room_category'][LANGUAGE_NONE][0]['target_id'] == $category['nid']) {
+      if (!empty($room['reservations_room_category'][LANGUAGE_NONE][0]['target_id']) && $room['reservations_room_category'][LANGUAGE_NONE][0]['target_id'] == $category['nid']) {
         $rooms_per_category++;
       }
     }
