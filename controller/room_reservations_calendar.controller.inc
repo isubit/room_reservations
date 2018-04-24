@@ -167,6 +167,9 @@ function room_reservations($selected_month = NULL, $selected_day = NULL) {
       $name = $data->title;
       $user_name = $data->name;
       $reservations[$rid][$time]['booked'] = TRUE;
+      if (empty($reservations[$rid][$time]['class'])) {
+        $reservations[$rid][$time]['class'] = '';
+      }
       $reservations[$rid][$time]['class'] .= ' booked';
       $reservations[$rid][$time]['name'] = $name;
       $reservations[$rid][$time]['user_name'] = $user_name;
