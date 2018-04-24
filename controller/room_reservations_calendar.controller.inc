@@ -195,6 +195,9 @@ function room_reservations($selected_month = NULL, $selected_day = NULL) {
         $key++;
         $next_time = $times[$key];
         $reservations[$rid][$next_time]['booked'] = TRUE;
+        if (empty($reservations[$rid][$next_time]['class'])) {
+          $reservations[$rid][$next_time]['class'] = '';
+        }
         $reservations[$rid][$next_time]['class'] .= ' booked';
         $x++;
         // unclear how we handle wrapping a reservation to the next day; but reservation time slots can't go passed midnight; i.e. slot 47 
