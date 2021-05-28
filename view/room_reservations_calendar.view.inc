@@ -251,10 +251,9 @@ function theme_room_reservations($variables) {
 
             $options = array(
               'https' => TRUE,
-              'query' => array('target' => url($base_secure_url . '/' . variable_get('isushib_login_dir', 'shibboleth') . '/pc', array('query' => array('destination' => 'node/add/room-reservations-reservation/' . $month_number . '/' . $xday . '/' . $time_slot['time'] . '/' . $rid)))),
             );
 
-            $url = url($base_root . '/Shibboleth.sso/Login', $options);
+            $url = url($base_url . '/login', $options);
 
             // url() does not respect https option unless variable_get('https', FALSE)
             // is TRUE, so ensure that link to Shibboleth is an https link.
