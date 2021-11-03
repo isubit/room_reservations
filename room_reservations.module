@@ -213,7 +213,7 @@ function room_reservations_node_access($nodetype_or_node, $op, $account) {
             // since available lengths takes allowed dates into account; lets just use that
             $yyyymmdd = _room_reservations_yyyymmdd((int) arg(3), (int) arg(4));
             $lengths = _room_reservations_valid_lengths(arg(6), $yyyymmdd, arg(5));
-            if (count($lengths)) {
+            if (!is_null($lengths) && count($lengths)) {
               foreach ($lengths as $length) {
                 if ($length['is_valid']) {
                   return (user_access('create room reservations standard') || user_access('create room reservations extended') 
