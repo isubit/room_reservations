@@ -161,7 +161,16 @@ function theme_room_reservations($variables) {
     // Date and building hours.
     $flipped = variable_get('room_reservations_calendar_flipped', 0);
     $orientclass = $flipped ? 'orient-horiz' : 'orient-vert';
-    
+
+    // Begin hacking in of special message.
+    // Define special message in settings.php as
+    // $conf['room_reservations_message'] = 'my special message';
+    if ($category['title'] == 'Approval Required' && variable_get('room_reservations_message') != '') {
+      $output .= variable_get('room_reservations_message');
+      continue;
+    }
+    // End hacking in of special message.
+
     // this is the main DIV wrapper for the "table" within each Category
     $output .= '<div id="' . $id . '" class="panel ' . $show . '"><div class="gcolumns' . ' ' . $orientclass . '">';
     
